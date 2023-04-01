@@ -4,7 +4,12 @@
 			"path": "/Users/felix/Documents/thesis"
 		}
 	],
-	"settings": {},
+	"settings": {
+		"python.analysis.diagnosticMode": "workspace",
+		"python.analysis.autoSearchPaths": true,
+		"python.analysis.indexing": true,
+		"python.analysis.autoImportCompletions": true
+	},
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [        
