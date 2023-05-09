@@ -1,0 +1,354 @@
+[
+  {
+    "name": "Karmeliten-Apotheke",
+    "id": "ChIJn_7ccjSQokcRjW6LvG6dPvo",
+    "location": {
+      "lat": 49.7949521,
+      "lng": 9.929131
+    }
+  },
+  {
+    "name": "Stern Apotheke",
+    "id": "ChIJD6i2YdGRokcRrtmttyKTlNg",
+    "location": {
+      "lat": 49.80251489999999,
+      "lng": 9.943984600000002
+    }
+  },
+  {
+    "name": "Adalbero Apotheke",
+    "id": "ChIJEW0IjSSQokcR-_hUGg6PnEU",
+    "location": {
+      "lat": 49.7839414,
+      "lng": 9.9353426
+    }
+  },
+  {
+    "name": "Privilegierte Hirsch Apotheke",
+    "id": "ChIJewIJVTSQokcRAiaL6rVvzm4",
+    "location": {
+      "lat": 49.7961508,
+      "lng": 9.9271629
+    }
+  },
+  {
+    "name": "Elisabeth Apotheke",
+    "id": "ChIJg7upOFGQokcR4HVNoFC8ISg",
+    "location": {
+      "lat": 49.7944845,
+      "lng": 9.9038153
+    }
+  },
+  {
+    "name": "Vitasano Apotheke",
+    "id": "ChIJNZMVpDKQokcRtNylVF_No54",
+    "location": {
+      "lat": 49.7971244,
+      "lng": 9.9316508
+    }
+  },
+  {
+    "name": "Ringpark-Apotheke Würzburg",
+    "id": "ChIJmQkkdEVMc0ERdusQzy1oK48",
+    "location": {
+      "lat": 49.79927099999999,
+      "lng": 9.946662199999999
+    }
+  },
+  {
+    "name": "Tännig-Apotheke",
+    "id": "ChIJa0myXx6OokcRktriSDaBDpw",
+    "location": {
+      "lat": 49.82012,
+      "lng": 9.962310099999998
+    }
+  },
+  {
+    "name": "Bären-Apotheke",
+    "id": "ChIJ2XkoOkGOokcR2NN3zFg75e8",
+    "location": {
+      "lat": 49.8111816,
+      "lng": 9.983716300000001
+    }
+  },
+  {
+    "name": "Luitpold-Apotheke Würzburg",
+    "id": "ChIJkQxQ1SuQokcRtJcYI0JsmsM",
+    "location": {
+      "lat": 49.7921348,
+      "lng": 9.9454656
+    }
+  },
+  {
+    "name": "Franken Apotheke",
+    "id": "ChIJD8MYtdmPokcRSWCbFgw7TNQ",
+    "location": {
+      "lat": 49.78528600000001,
+      "lng": 9.949531
+    }
+  },
+  {
+    "name": "Apotheke am Bahnhof",
+    "id": "ChIJ4ewO_cyRokcRpwTmKmEHnPU",
+    "location": {
+      "lat": 49.8001742,
+      "lng": 9.934763199999999
+    }
+  },
+  {
+    "name": "Frauenland-Apotheke",
+    "id": "ChIJH9B6bSeQokcRaF5fGk30UbE",
+    "location": {
+      "lat": 49.7839927,
+      "lng": 9.944568
+    }
+  },
+  {
+    "name": "Kronen-Apotheke am Dom",
+    "id": "ChIJ3fnm4TOQokcRA6tyRK51DJQ",
+    "location": {
+      "lat": 49.79342789999999,
+      "lng": 9.930523100000002
+    }
+  },
+  {
+    "name": "Röntgen Apotheke",
+    "id": "ChIJDVoeYjOQokcRnTmKE7LN2qA",
+    "location": {
+      "lat": 49.7969076,
+      "lng": 9.9305879
+    }
+  },
+  {
+    "name": "Glocken-Apotheke in der Kaiserstraße Apotheker Dr. Wolfgang Schiedermair e.K.",
+    "id": "ChIJd-i40MyRokcRvLuXIJB4vAQ",
+    "location": {
+      "lat": 49.79880050000001,
+      "lng": 9.933897799999997
+    }
+  },
+  {
+    "name": "Anker Apotheke Inh. Apothekerin Sonja Buchberger",
+    "id": "ChIJS14mtyOQokcRKlM4hLIajpg",
+    "location": {
+      "lat": 49.7805341,
+      "lng": 9.9359751
+    }
+  },
+  {
+    "name": "LINDA - Theater-Apotheke",
+    "id": "ChIJIdhzezKQokcRZvXPg-jldLQ",
+    "location": {
+      "lat": 49.7952826,
+      "lng": 9.9356368
+    }
+  },
+  {
+    "name": "Mathilden-Apotheke",
+    "id": "ChIJF-XsiymOokcROQmjhYRLnfI",
+    "location": {
+      "lat": 49.8018229,
+      "lng": 9.954447300000002
+    }
+  },
+  {
+    "name": "Sonnen Apotheke",
+    "id": "ChIJv6lvEeiPokcRYeV-FkdAYgI",
+    "location": {
+      "lat": 49.77476840000001,
+      "lng": 9.9571169
+    }
+  },
+  {
+    "name": "Grombühl Apotheke",
+    "id": "ChIJP4v03dORokcRkXepp0pVRqc",
+    "location": {
+      "lat": 49.802005,
+      "lng": 9.9439485
+    }
+  },
+  {
+    "name": "Engel-Apotheke",
+    "id": "ChIJp6b1kjOQokcR-VEfVI347Fw",
+    "location": {
+      "lat": 49.7946028,
+      "lng": 9.930549599999997
+    }
+  },
+  {
+    "name": "Market Pharmacy Würzburg",
+    "id": "ChIJoXkT-DOQokcRinDz2hWy2Ys",
+    "location": {
+      "lat": 49.79408899999999,
+      "lng": 9.9294859
+    }
+  },
+  {
+    "name": "St. Georgs - Apotheke",
+    "id": "ChIJAQRVOfuPokcRSUIOaElw_wk",
+    "location": {
+      "lat": 49.7648221,
+      "lng": 9.9483667
+    }
+  },
+  {
+    "name": "Residenz Apotheke",
+    "id": "ChIJI8z38DKQokcR66SPkfN0CDY",
+    "location": {
+      "lat": 49.79608799999999,
+      "lng": 9.934431999999997
+    }
+  },
+  {
+    "name": "Storchen-Apotheke",
+    "id": "ChIJORGCjVaQokcRPHlVtvdXdGk",
+    "location": {
+      "lat": 49.7948195,
+      "lng": 9.9124476
+    }
+  },
+  {
+    "name": "Eichendorff Apotheke - Würzburg",
+    "id": "ChIJ1UB6VDuQokcRilo7K0AtEfo",
+    "location": {
+      "lat": 49.7833507,
+      "lng": 9.9319647
+    }
+  },
+  {
+    "name": "Würzburger Bund Freier Ärzte, Zahnärzte und Apotheker e. V.",
+    "id": "ChIJ3UevOzCQokcRZoFaBBQuGAk",
+    "location": {
+      "lat": 49.7897391,
+      "lng": 9.933426400000002
+    }
+  },
+  {
+    "name": "St. Kilians-Apotheke Dres. Claudia und Thomas Richter OHG",
+    "id": "ChIJST8iBjaQokcRrESoJ6hdg4o",
+    "location": {
+      "lat": 49.78947209999999,
+      "lng": 9.9304451
+    }
+  },
+  {
+    "name": "eulen °°° apotheke",
+    "id": "ChIJ-Ri1zDaQokcR3glav74h80s",
+    "location": {
+      "lat": 49.7919157,
+      "lng": 9.9287641
+    }
+  },
+  {
+    "name": "City-Apotheke",
+    "id": "ChIJc0XY1zKQokcR0qnVQ78RMNg",
+    "location": {
+      "lat": 49.7977739,
+      "lng": 9.9340323
+    }
+  },
+  {
+    "name": "Hirsch-Apotheke, Apotheker Dr. Matthias Grohmann e.K.",
+    "id": "ChIJV-t9m-uRokcR96ubCAzGV8A",
+    "location": {
+      "lat": 49.7961014,
+      "lng": 9.927187
+    }
+  },
+  {
+    "name": "Hof-Apotheke zum Löwen Dres. Claudia und Thomas Richter OHG",
+    "id": "ChIJJ3sI3hGRokcRXH7f1M9XekY",
+    "location": {
+      "lat": 49.7938,
+      "lng": 9.9234
+    }
+  },
+  {
+    "name": "Rokoko Apotheke Juliusspital",
+    "id": "ChIJLSuOiEiRokcRHkt3Wa6aZ8A",
+    "location": {
+      "lat": 49.79782789999999,
+      "lng": 9.931068199999999
+    }
+  },
+  {
+    "name": "St. Barbara Pharmacy",
+    "id": "ChIJb6V2q9SPokcRe9i87hqdM4E",
+    "location": {
+      "lat": 49.7962578,
+      "lng": 9.955172899999999
+    }
+  },
+  {
+    "name": "Alpha+ Apotheke",
+    "id": "ChIJe_dN38yRokcRl86UqDxujxw",
+    "location": {
+      "lat": 49.79885609999999,
+      "lng": 9.933961400000001
+    }
+  },
+  {
+    "name": "Apotheke Im Hubland-center",
+    "id": "ChIJH9SoemmPokcRM4u9VTIShVU",
+    "location": {
+      "lat": 49.7907072,
+      "lng": 9.966363600000001
+    }
+  },
+  {
+    "name": "Stern Apotheke Dr. Michael Sax e. K.",
+    "id": "ChIJC8FF96qRokcRFSuGuViC8yU",
+    "location": {
+      "lat": 49.8024924,
+      "lng": 9.9439119
+    }
+  },
+  {
+    "name": "Kloster Apotheke",
+    "id": "ChIJDx7o7vqPokcRAEdPOiaTnmE",
+    "location": {
+      "lat": 49.76439999999999,
+      "lng": 9.95007
+    }
+  },
+  {
+    "name": "New pharmacy Lengfeld",
+    "id": "ChIJEQrtkD6OokcRuG3p5O_imdQ",
+    "location": {
+      "lat": 49.8118492,
+      "lng": 9.9767564
+    }
+  },
+  {
+    "name": "easyApotheke Nürnberger Strasse",
+    "id": "ChIJy6JpbZaPokcRmhZtity0FWY",
+    "location": {
+      "lat": 49.7972382,
+      "lng": 9.9813301
+    }
+  },
+  {
+    "name": "easy Pharmacy Unterdürrbacherstraße",
+    "id": "ChIJTYh_TACRokcR0Sd5lQUVc78",
+    "location": {
+      "lat": 49.8037755,
+      "lng": 9.8960373
+    }
+  },
+  {
+    "name": "St. Rochus-Apotheke",
+    "id": "ChIJw7tUVh-OokcRo3Bnr0BtjUM",
+    "location": {
+      "lat": 49.81635800000001,
+      "lng": 9.9636194
+    }
+  },
+  {
+    "name": "Heuchelhof Apotheke Dr. Schunk",
+    "id": "ChIJOeOYDF2FokcRX1PluMyO06s",
+    "location": {
+      "lat": 49.74721359999999,
+      "lng": 9.957460200000002
+    }
+  }
+]
