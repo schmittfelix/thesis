@@ -1,0 +1,401 @@
+area,population
+Flensburg,91113
+Kiel,246243
+Lübeck,216277
+Neumünster,79496
+Dithmarschen,133969
+Herzogtum Lauenburg,200819
+Nordfriesland,167560
+Ostholstein,202014
+Pinneberg,318326
+Plön,129687
+Rendsburg-Eckernförde,276053
+Schleswig-Flensburg,203799
+Segeberg,280400
+Steinburg,130843
+Stormarn,245406
+Hamburg,1853935
+Braunschweig,248823
+Salzgitter,103694
+Wolfsburg,123949
+Gifhorn,177919
+Goslar,134050
+Helmstedt,91379
+Northeim,131765
+Peine,136960
+Wolfenbüttel,119224
+Göttingen,323661
+Region Hannover,1157541
+Diepholz,218839
+Hameln-Pyrmont,148963
+Hildesheim,274773
+Holzminden,69862
+Nienburg (Weser),121773
+Schaumburg,158108
+Celle,179915
+Cuxhaven,199603
+Harburg,257548
+Lüchow-Dannenberg,48472
+Lüneburg,185129
+Osterholz,115054
+Rotenburg (Wümme),165001
+Heidekreis,142912
+Stade,206496
+Uelzen,92894
+Verden,138507
+Delmenhorst,77522
+Emden,49523
+Oldenburg (Oldenburg),170389
+Osnabrück,165034
+Wilhelmshaven,75027
+Ammerland,126475
+Aurich,190425
+Cloppenburg,173980
+Emsland,331397
+Friesland,98971
+Grafschaft Bentheim,138722
+Leer,172421
+Oldenburg,132091
+Osnabrück,361550
+Vechta,144805
+Wesermarsch,88430
+Wittmund,57455
+Bremen,563290
+Bremerhaven,113173
+Düsseldorf,619477
+Duisburg,495152
+Essen,579432
+Krefeld,227050
+Mönchengladbach,261001
+Mülheim an der Ruhr,170739
+Oberhausen,208752
+Remscheid,111770
+Solingen,158957
+Wuppertal,354572
+Kleve,314676
+Mettmann,484411
+Rhein-Kreis Neuss,452496
+Viersen,298761
+Wesel,460433
+Bonn,331885
+Köln,1073096
+Leverkusen,163851
+Städteregion Aachen,556673
+Düren,266771
+Rhein-Erft-Kreis,471891
+Euskirchen,194701
+Heinsberg,258306
+Oberbergischer Kreis,271621
+Rheinisch-Bergischer Kreis,283429
+Rhein-Sieg-Kreis,600732
+Bottrop,117311
+Gelsenkirchen,260126
+Münster,317713
+Borken,373582
+Coesfeld,221352
+Recklinghausen,612801
+Steinfurt,450176
+Warendorf,278176
+Bielefeld,334002
+Gütersloh,366104
+Herford,250635
+Höxter,139994
+Lippe,346151
+Minden-Lübbecke,311214
+Paderborn,309380
+Bochum,363441
+Dortmund,586852
+Hagen,188713
+Hamm,179238
+Herne,156621
+Ennepe-Ruhr-Kreis,322143
+Hochsauerlandkreis,258615
+Märkischer Kreis,406793
+Olpe,133120
+Siegen-Wittgenstein,274342
+Soest,302298
+Unna,393063
+Darmstadt,159631
+Frankfurt am Main,759224
+Offenbach am Main,131295
+Wiesbaden,278950
+Bergstraße,271166
+Darmstadt-Dieburg,296900
+Groß-Gerau,276307
+Hochtaunuskreis,237041
+Main-Kinzig-Kreis,423465
+Main-Taunus-Kreis,239276
+Odenwaldkreis,96953
+Offenbach,357466
+Rheingau-Taunus-Kreis,187229
+Wetteraukreis,311661
+Gießen,272874
+Lahn-Dill-Kreis,253364
+Limburg-Weilburg,172759
+Marburg-Biedenkopf,246097
+Vogelsbergkreis,105671
+Kassel,200406
+Fulda,223572
+Hersfeld-Rotenburg,120163
+Kassel,237268
+Schwalm-Eder-Kreis,180052
+Waldeck-Frankenberg,156513
+Werra-Meißner-Kreis,99714
+Koblenz,113638
+Ahrweiler,128146
+Altenkirchen (Westerwald),129261
+Bad Kreuznach,159402
+Birkenfeld,80849
+Cochem-Zell,61735
+Mayen-Koblenz,215446
+Neuwied,184390
+Rhein-Hunsrück-Kreis,103767
+Rhein-Lahn-Kreis,122724
+Westerwaldkreis,203831
+Trier,110570
+Bernkastel-Wittlich,113194
+Eifelkreis Bitburg-Prüm,100959
+Vulkaneifel,60882
+Trier-Saarburg,151167
+Frankenthal (Pfalz),48773
+Kaiserslautern,99292
+Landau in der Pfalz,46919
+Ludwigshafen am Rhein,172145
+Mainz,217556
+Neustadt an der Weinstraße,53491
+Pirmasens,40054
+Speyer,50565
+Worms,83850
+Zweibrücken,34091
+Alzey-Worms,131330
+Bad Dürkheim,133206
+Donnersbergkreis,75569
+Germersheim,129313
+Kaiserslautern,106853
+Kusel,69949
+Südliche Weinstraße,111279
+Rhein-Pfalz-Kreis,155050
+Mainz-Bingen,212420
+Südwestpfalz,94819
+Stuttgart,626275
+Böblingen,393195
+Esslingen,533388
+Göppingen,259046
+Ludwigsburg,544679
+Rems-Murr-Kreis,427316
+Heilbronn,125613
+Heilbronn,347798
+Hohenlohekreis,113318
+Schwäbisch Hall,199398
+Main-Tauber-Kreis,132956
+Heidenheim,132958
+Ostalbkreis,315009
+Baden-Baden,55527
+Karlsruhe,306502
+Karlsruhe,448487
+Rastatt,232296
+Heidelberg,159245
+Mannheim,311831
+Neckar-Odenwald-Kreis,143929
+Rhein-Neckar-Kreis,549030
+Pforzheim,125529
+Calw,160686
+Enzkreis,200237
+Freudenstadt,119183
+Freiburg im Breisgau,231848
+Breisgau-Hochschwarzwald,265792
+Emmendingen,167945
+Ortenaukreis,434535
+Rottweil,140446
+Schwarzwald-Baar-Kreis,213385
+Tuttlingen,142414
+Konstanz,288097
+Lörrach,229445
+Waldshut,171249
+Reutlingen,288158
+Tübingen,229806
+Zollernalbkreis,190545
+Ulm,126949
+Alb-Donau-Kreis,199732
+Biberach,203244
+Bodenseekreis,218885
+Ravensburg,287011
+Sigmaringen,131725
+Ingolstadt,138016
+München,1487708
+Rosenheim,63508
+Altötting,112116
+Berchtesgadener Land,106389
+Bad Tölz-Wolfratshausen,127919
+Dachau,155449
+Ebersberg,144562
+Eichstätt,133634
+Erding,139622
+Freising,181144
+Fürstenfeldbruck,218579
+Garmisch-Partenkirchen,88232
+Landsberg am Lech,121466
+Miesbach,99978
+Mühldorf am Inn,117606
+München,349837
+Neuburg-Schrobenhausen,98503
+Pfaffenhofen an der Ilm,129772
+Rosenheim,263367
+Starnberg,136747
+Traunstein,178447
+Weilheim-Schongau,136642
+Landshut,73150
+Passau,53093
+Straubing,47854
+Deggendorf,120521
+Freyung-Grafenau,78632
+Kelheim,123899
+Landshut,162331
+Passau,194090
+Regen,77176
+Rottal-Inn,122252
+Straubing-Bogen,102398
+Dingolfing-Landau,98045
+Amberg,41994
+Regensburg,153542
+Weiden in der Oberpfalz,42472
+Amberg-Sulzbach,103277
+Cham,128444
+Neumarkt in der Oberpfalz,136062
+Neustadt an der Waldnaab,94838
+Regensburg,195225
+Schwandorf,149239
+Tirschenreuth,71648
+Bamberg,77749
+Bayreuth,73909
+Coburg,40955
+Hof,45125
+Bamberg,147697
+Bayreuth,103648
+Coburg,86544
+Forchheim,116753
+Hof,93907
+Kronach,66091
+Kulmbach,71328
+Lichtenfels,66741
+Wunsiedel im Fichtelgebirge,71482
+Ansbach,41662
+Erlangen,113292
+Fürth,129122
+Nürnberg,510632
+Schwabach,41146
+Ansbach,186279
+Erlangen-Höchstadt,139323
+Fürth,119432
+Nürnberger Land,171424
+Neustadt an der Aisch-Bad Windsheim,101788
+Roth,127520
+Weißenburg-Gunzenhausen,95523
+Aschaffenburg,71381
+Schweinfurt,53585
+Würzburg,126933
+Aschaffenburg,174965
+Bad Kissingen,103454
+Rhön-Grabfeld,79376
+Haßberge,84284
+Kitzingen,91980
+Miltenberg,128782
+Main-Spessart,126105
+Schweinfurt,116134
+Würzburg,163534
+Augsburg,296478
+Kaufbeuren,45118
+Kempten (Allgäu),69053
+Memmingen,44721
+Aichach-Friedberg,135538
+Augsburg,257790
+Dillingen an der Donau,97985
+Günzburg,128436
+Neu-Ulm,177330
+Lindau (Bodensee),82330
+Ostallgäu,143236
+Unterallgäu,147776
+Donau-Ries,134986
+Oberallgäu,157202
+Regionalverband Saarbrücken,327284
+Merzig-Wadern,103426
+Neunkirchen,130847
+Saarlouis,193661
+Saarpfalz-Kreis,140960
+Sankt Wendel,86170
+Berlin,3677472
+Brandenburg an der Havel,72461
+Cottbus,98359
+Frankfurt (Oder),56679
+Potsdam,183154
+Barnim,188835
+Dahme-Spreewald,175834
+Elbe-Elster,100317
+Havelland,165906
+Märkisch-Oderland,197965
+Oberhavel,215795
+Oberspreewald-Lausitz,107558
+Oder-Spree,179245
+Ostprignitz-Ruppin,98829
+Potsdam-Mittelmark,219521
+Prignitz,75574
+Spree-Neiße,111955
+Teltow-Fläming,172545
+Uckermark,117336
+Rostock,208400
+Schwerin,95740
+Mecklenburgische Seenplatte,257525
+Rostock,217796
+Vorpommern-Rügen,225900
+Nordwestmecklenburg,158449
+Vorpommern-Greifswald,235451
+Ludwigslust-Parchim,211899
+Chemnitz,243105
+Erzgebirgskreis,328695
+Mittelsachsen,299329
+Vogtlandkreis,221376
+Zwickau,309621
+Dresden,555351
+Bautzen,296290
+Görlitz,248273
+Meißen,239344
+Sächsische Schweiz-Osterzgebirge,244009
+Leipzig,601866
+Leipzig,258214
+Nordsachsen,197529
+Dessau-Roßlau,78731
+Halle (Saale),238061
+Magdeburg,236188
+Altmarkkreis Salzwedel,81986
+Anhalt-Bitterfeld,155900
+Börde,170106
+Burgenlandkreis,176333
+Harz,209117
+Jerichower Land,89118
+Mansfeld-Südharz,132317
+Saalekreis,182814
+Salzlandkreis,185495
+Stendal,109746
+Wittenberg,123341
+Erfurt,213227
+Gera,91368
+Jena,110502
+Suhl,36054
+Weimar,65138
+Eichsfeld,99324
+Nordhausen,81687
+Wartburgkreis,158900
+Unstrut-Hainich-Kreis,101269
+Kyffhäuserkreis,72964
+Schmalkalden-Meiningen,123404
+Gotha,133825
+Sömmerda,68717
+Hildburghausen,62089
+Ilm-Kreis,105367
+Weimarer Land,82103
+Sonneberg,56504
+Saalfeld-Rudolstadt,100969
+Saale-Holzland-Kreis,82513
+Saale-Orla-Kreis,79030
+Greiz,96102
+Altenburger Land,87807

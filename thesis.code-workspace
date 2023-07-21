@@ -9,7 +9,8 @@
 		"python.analysis.autoSearchPaths": true,
 		"python.analysis.indexing": true,
 		"python.analysis.autoImportCompletions": true,
-		"jupyter.notebookFileRoot": "/Users/felix/Documents/thesis"
+		"jupyter.notebookFileRoot": "/Users/felix/Documents/thesis",
+		"notebook.displayOrder": ["application/json", "text/x-json", "text/x-html"]
 	},
 	"launch": {
 		"version": "0.2.0",
