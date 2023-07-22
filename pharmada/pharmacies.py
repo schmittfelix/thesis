@@ -1,7 +1,7 @@
-"""Get all pharmacies within an area.
+"""Retrieve and present information about pharmacies within a given area.
 
-Area boundaries are extracted from OSM.
-Pharmacy location, name and reference ID are retreived from GMaps.
+Area geometry is extracted from OSM.
+Pharmacy data is retreived from GMaps.
 """
 
 import pharmada.overpass as op
@@ -10,6 +10,34 @@ import ftfy
 import requests as req
 import geopandas as gpd
 from shapely.geometry import Point
+
+class Pharmacy:
+    def __init__(self, name, gmaps_id, location, address):
+        self.name = name
+        self.gmaps_id = gmaps_id
+        self.location = location
+        self.address = address
+
+    def __repr__(self):
+        return f"Pharmacy('{self.name}', '{self.gmaps_id}', '{self.location}', '{self.address}')"
+    
+    def __str__(self):
+        return f"{self.name} ({self.address})"
+    
+    def __eq__(self, other):
+        return self.gmaps_id == other.gmaps_id
+    
+    def __hash__(self):
+        return hash(self.gmaps_id)
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'gmaps_id': self.gmaps_id,
+            'location': self.location,
+            'address': self.address
+        }
+
 
 def pharmacies_in_area(regional_key, gmaps_key):
     """Get all pharmacies within an area."""
@@ -32,22 +60,8 @@ def _calculate_area_radius(area_geom):
     """Calculate area radius from boundaries."""
 
     area_geom = area_geom.to_crs(area_geom.estimate_utm_crs())
-
-    refpoints = (
-        gpd.GeoSeries(gpd.points_from_xy([area_geom.geometry.bounds.maxx[0]], [area_geom.geometry.bounds.maxy[0]])),
-        gpd.GeoSeries(gpd.points_from_xy([area_geom.geometry.bounds.minx[0]], [area_geom.geometry.bounds.maxy[0]])),
-        gpd.GeoSeries(gpd.points_from_xy([area_geom.geometry.bounds.maxx[0]], [area_geom.geometry.bounds.miny[0]])),
-        gpd.GeoSeries(gpd.points_from_xy([area_geom.geometry.bounds.minx[0]], [area_geom.geometry.bounds.miny[0]]))
-    )
     
-    for refpoint in refpoints:
-        refpoint.crs = area_geom.crs
-
-    distances = []
-    for refpoint in refpoints:
-        distances.append(area_geom.centroid.distance(refpoint)[0].round(0))
-    
-    area_radius = max(distances)
+    area_radius = area_geom.minimum_bounding_radius()
 
     return area_radius
 
@@ -95,15 +109,18 @@ def _filter_pharmacies(found_pharmacies, area_geom):
         matching_name = any(x in pharmacy['name'].lower() for x in ['apotheke', 'pharmacy']) and \
                         not any(x in pharmacy['name'].lower() for x in ['e.V.'])
         
+        # if either of the above checks fails, the pharmacy is skipped
         if not in_area or not matching_name:
             continue
 
         # extract location, name and id from results
-        ph = {}
-        ph['name'] = ftfy.fix_text(pharmacy['name'])
-        ph['id'] = pharmacy['place_id']
-        ph['location'] = pharmacy['geometry']['location']
-        ph['address'] = pharmacy['vicinity']
+        ph_name = ftfy.fix_text(pharmacy['name'])
+        ph_id = pharmacy['place_id']
+        ph_location = pharmacy['geometry']['location']
+        ph_address = pharmacy['vicinity']
+
+        # Instantiate a new pharmacy and pass data
+        ph = Pharmacy(ph_name, ph_id, ph_location, ph_address)
 
         pharmacies.append(ph)
 

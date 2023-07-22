@@ -1,7 +1,8 @@
 """Generate randomized but realistic daily customers for the Pharma VRP.
 
 """
-import overpass as op
+import math
+import pharmada.overpass as op
 import pandas as pd
 import requests as req
 import geopandas as gpd
@@ -24,11 +25,15 @@ def generate_customers(regional_key, gmaps_key):
     # Generate addresses for the customers
     addresses = generate_addresses(regional_key, count, gmaps_key)
 
+    customers = []
+
+    for address in addresses:
+        customers.append(Customer(address))
     
     return customers
 
 def get_demand (regional_key):
-    """Calculate yearly pharmaceutical demand for a given area.
+    """Calculate daily pharmaceutical demand for a given area.
     
     This function requires a valid German "Regionalschlüssel" as input."""
 
@@ -36,10 +41,13 @@ def get_demand (regional_key):
     df = pd.read_csv('./data/population_by_kreise.csv', sep=';',
                      header=0, index_col=0, encoding='utf-8', converters={'regional_key': str}, engine='python')    
     
-    #Population in area * (total volume / total population)
-    demand = df.loc[regional_key, 'total'] * (unit_volume / inhabitants)
+    #Yearly demand: Population in area * (overall yearly volume / total population)
+    yearly_demand = df.loc[regional_key, 'total'] * (unit_volume / inhabitants)
 
-    return demand.round(0)
+    #Return daily demand rounded to the nearest integer
+    daily_demand = round(yearly_demand / 365)
+    
+    return math.trunc(daily_demand)
 
 def generate_addresses (regional_key, count, gmaps_key):
     """Generate random addresses within an area."""
@@ -62,7 +70,7 @@ def generate_addresses (regional_key, count, gmaps_key):
 
     for point in points:
         # Geocode with the GMaps API
-        geocode_url = f'https://maps.googleapis.com/maps/api/geocode/json?latlng={point["geometry"].y[0]},{point["geometry"].x[0]}&key={gmaps_key}'
+        geocode_url = f'https://maps.googleapis.com/maps/api/geocode/json?latlng={point.y},{point.x}&key={gmaps_key}'
         geocode_response = req.get(geocode_url).json()
 
         # Geolocate (reverse Geocode) the address to get exact latlong coordinates
