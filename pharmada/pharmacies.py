@@ -63,7 +63,7 @@ def _calculate_area_radius(area_geom):
     
     area_radius = area_geom.minimum_bounding_radius()
 
-    return area_radius
+    return area_radius[0]
 
 def _fetch_pharmacies(area_geom, area_radius, gmaps_key):
     """Get pharmacies within area from GMaps."""
@@ -107,7 +107,7 @@ def _filter_pharmacies(found_pharmacies, area_geom):
 
         # check if pharmacy name contains "apotheke" or "pharmacy" and filter out "e.V." (Verein)
         matching_name = any(x in pharmacy['name'].lower() for x in ['apotheke', 'pharmacy']) and \
-                        not any(x in pharmacy['name'].lower() for x in ['e.V.'])
+                        not any(x in pharmacy['name'].lower() for x in ['e.v.', 'e. v.'])
         
         # if either of the above checks fails, the pharmacy is skipped
         if not in_area or not matching_name:
