@@ -11,34 +11,6 @@ import requests as req
 import geopandas as gpd
 from shapely.geometry import Point
 
-class Pharmacy:
-    def __init__(self, name, gmaps_id, location, address):
-        self.name = name
-        self.gmaps_id = gmaps_id
-        self.location = location
-        self.address = address
-
-    def __repr__(self):
-        return f"Pharmacy('{self.name}', '{self.gmaps_id}', '{self.location}', '{self.address}')"
-    
-    def __str__(self):
-        return f"{self.name} ({self.address})"
-    
-    def __eq__(self, other):
-        return self.gmaps_id == other.gmaps_id
-    
-    def __hash__(self):
-        return hash(self.gmaps_id)
-
-    def to_dict(self):
-        return {
-            'name': self.name,
-            'gmaps_id': self.gmaps_id,
-            'location': self.location,
-            'address': self.address
-        }
-
-
 def pharmacies_in_area(regional_key, gmaps_key):
     """Get all pharmacies within an area."""
 
@@ -46,17 +18,17 @@ def pharmacies_in_area(regional_key, gmaps_key):
     area_geom = op.get_area_geometry(regional_key)
 
     # calculate area radius
-    area_radius = _calculate_area_radius(area_geom)
+    area_radius = calc_area_radius(area_geom)
 
     # get pharmacies
-    found_pharmacies = _fetch_pharmacies(area_geom, area_radius, gmaps_key)
+    found_pharmacies = fetch_pharmacies(area_geom, area_radius, gmaps_key)
 
     # filter pharmacies
-    pharmacies = _filter_pharmacies(found_pharmacies, area_geom)
+    pharmacies = filter_pharmacies(found_pharmacies, area_geom)
 
     return pharmacies
 
-def _calculate_area_radius(area_geom):
+def calc_area_radius(area_geom):
     """Calculate area radius from boundaries."""
 
     area_geom = area_geom.to_crs(area_geom.estimate_utm_crs())
@@ -65,7 +37,7 @@ def _calculate_area_radius(area_geom):
 
     return area_radius[0]
 
-def _fetch_pharmacies(area_geom, area_radius, gmaps_key):
+def fetch_pharmacies(area_geom, area_radius, gmaps_key):
     """Get pharmacies within area from GMaps."""
 
     area_geom = area_geom.to_crs(area_geom.estimate_utm_crs())
@@ -93,10 +65,9 @@ def _fetch_pharmacies(area_geom, area_radius, gmaps_key):
 
     return found_pharmacies
 
-def _filter_pharmacies(found_pharmacies, area_geom):
+def filter_pharmacies(found_pharmacies, area_geom):
     """Filter out of bounds pharmacies and fix attributes."""
 
-    # filter and prepare pharmacies
     pharmacies = []
 
     for pharmacy in found_pharmacies:
@@ -109,19 +80,26 @@ def _filter_pharmacies(found_pharmacies, area_geom):
         matching_name = any(x in pharmacy['name'].lower() for x in ['apotheke', 'pharmacy']) and \
                         not any(x in pharmacy['name'].lower() for x in ['e.v.', 'e. v.'])
         
-        # if either of the above checks fails, the pharmacy is skipped
+        # if either of the above checks fails, skip the pharmacy
         if not in_area or not matching_name:
             continue
 
         # extract location, name and id from results
         ph_name = ftfy.fix_text(pharmacy['name'])
         ph_id = pharmacy['place_id']
-        ph_location = pharmacy['geometry']['location']
+        ph_location = Point(pharmacy['geometry']['location']['lng'], pharmacy['geometry']['location']['lat'])
         ph_address = pharmacy['vicinity']
 
-        # Instantiate a new pharmacy and pass data
-        ph = Pharmacy(ph_name, ph_id, ph_location, ph_address)
+        ph = {
+            'name': ph_name,
+            'ph_id': ph_id,
+            'location': ph_location,
+            'address': ph_address
+        }
 
         pharmacies.append(ph)
 
-    return pharmacies
+    # convert to GeoDataFrame
+    result = gpd.GeoDataFrame(pharmacies, geometry='location', crs=area_geom.crs)
+
+    return result

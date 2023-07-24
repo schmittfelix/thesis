@@ -24,7 +24,9 @@ def generate_customers(regional_key, gmaps_key):
     count = get_demand(regional_key)
 
     # Generate random addresses within the area
-    addresses = generate_locations(regional_key, count)
+    points = generate_locations(regional_key, count)
+
+    return points
 
 def get_demand (regional_key):
     """Calculate daily pharmaceutical demand for a given area.
