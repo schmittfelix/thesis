@@ -144,3 +144,76 @@ def get_area_geometry(regional_key):
         area_geom = area_geom.reset_index(drop=True)
 
     return area_geom
+
+def get_precise_geometry(regional_key, union=True):
+    """Get precise customer areas for a regional key.
+    
+    This function differs from get_area_geometry() in that it returns
+    a GeoDataFrame with more precise area boundaries to allow for 
+    more realistic customer locations."""
+
+    # Resolve a regional key to OSM relation data
+    data = resolve_reg_key(regional_key)
+    osm_id = data['osm_id']
+    name = data['name']
+
+    # Get a complete set of all realistic customer areas within the area
+    query = f"""
+        [out:json];
+            
+        //set up area given by regional_key as search boundary
+        (
+        relation(62464);
+        map_to_area;
+        ) ->.boundary;
+
+        //get all ways and relations within the boundary that have one of the specified area tags.
+        //The tags represent the majority of areas where customers are likely to be found, while excluding
+        //areas that are unlikely to contain customers such as outdoor spaces and unrealistic areas like bodies of water.
+        
+                //ways and relations (wr) within the boundary
+            wr(area.boundary)[
+            
+                //with 'landuse' or 'amenity' tag
+            ~"^(landuse|amenity)$"
+
+                //with one of the following values
+            ~"^(residential|commercial|industrial|education|retail|institutional|
+                school|university|hospital|kindergarten|college)$"
+            
+                // save results in set
+            ]->.results;
+
+            // output full geometry of the results set     
+        .results out geom qt;
+        """
+    response = query_overpass(query)
+
+    # If the response is empty, raise an error
+    if not response['elements']:
+        raise ValueError("Empty response.")
+
+    # Extract the geometry from the response
+    geometry = o2g.json2geojson(response)
+
+    # Convert the geometry to a GeoDataFrame
+    area_geom = gpd.GeoDataFrame.from_features(geometry, crs='EPSG:4326')
+
+    # Drop unnecessary column 'nodes' if it exists
+    if 'nodes' in area_geom.columns:
+        area_geom.drop(columns=['nodes'], inplace=True)
+
+    # Remove all tags except for name, landuse and amenity
+    area_geom['tags'] = area_geom['tags'].apply(
+        lambda tags: {key: tags[key] for key in ['name', 'landuse', 'amenity'] if key in tags}
+        )
+    
+    # Unite the geometry to a single polygon
+    if union:
+        area_geom = gpd.GeoDataFrame(geometry=[area_geom.unary_union], crs='EPSG:4326')
+
+        # Add metadata to the GeoDataFrame
+        area_geom['regional_key'] = regional_key
+        area_geom['name'] = name
+
+    return area_geom

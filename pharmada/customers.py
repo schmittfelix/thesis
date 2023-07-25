@@ -18,7 +18,7 @@ population = 84.3e6
 unit_volume = 1.288e9
 total_cost = 54.66e9
 
-def generate_customers(regional_key, gmaps_key):
+def generate_customers(regional_key):
 
     # Determine the number of customers to generate
     count = get_demand(regional_key)
@@ -49,10 +49,10 @@ def generate_locations (regional_key, count):
     """Generate random addresses within an area."""
 
     # Get the area geometry
-    area_geom = op.get_area_geometry(regional_key)
+    area_geom = op.get_precise_geometry(regional_key)
 
     points = area_geom.sample_points(count)
     
-    #TODO: Validate addresses and constrict to residential areas
+    #TODO: Validate addresses with Google Maps API
 
     return points
