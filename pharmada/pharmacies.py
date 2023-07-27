@@ -4,7 +4,6 @@ Area geometry is extracted from OSM.
 Pharmacy data is retreived from GMaps.
 """
 
-from sklearn import base
 import pharmada.overpass as op
 import time
 import ftfy

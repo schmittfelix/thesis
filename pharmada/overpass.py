@@ -56,10 +56,23 @@ def resolve_reg_key(regional_key):
         raise ValueError("No regional key found for relation.")
     
     # Check if the regional keys from the request and the result match
-    original_key = f'{regional_key:0<12}'
     result_key = result['tags']['de:regionalschluessel']
-    if original_key != result_key:
-        raise ValueError("Regional keys from request and result do not match.")
+    
+    """ OSM regional key lenghts differ for Kreisfreie Städte and Kreise.
+        Both use the first 5 digits of the Regionalschlüssel system, but for
+        Kreisfreie Städte the key is stored as a full-size key with 12 digits.
+        For Kreise, the key is stored as a short key with 5 digits.
+        More information: https://wiki.openstreetmap.org/wiki/Key:de:regionalschluessel"""
+    
+    # Evaluates to True if the regional key is a short key
+    short_key = regional_key[:5] == result_key
+
+    # Evaluates to True if the regional key is a long key
+    # (i.e. the short key with trailing zeros)
+    long_key = f'{regional_key:0<12}' == result_key
+
+    # if not short_key or long_key:
+        # raise ValueError("Regional keys from request and result do not match.")
     
     # If the response contains no name or id, raise an error
     if not result['id'] or not result['tags']['name']:
@@ -163,7 +176,7 @@ def get_precise_geometry(regional_key, union=True):
             
         //set up area given by regional_key as search boundary
         (
-        relation(62464);
+        relation({osm_id});
         map_to_area;
         ) ->.boundary;
 

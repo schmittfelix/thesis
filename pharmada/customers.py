@@ -32,9 +32,9 @@ def get_demand (regional_key):
     """Calculate daily pharmaceutical demand for a given area.
     
     This function requires a valid German "Regionalschlüssel" as input."""
-
+    
     # Read in the data from a dedicated csv file
-    df = pd.read_csv('./data/population_by_kreise.csv', sep=';',
+    df = pd.read_csv('./data/kreise_data.csv', sep=';',
                      header=0, index_col=0, encoding='utf-8', converters={'regional_key': str}, engine='python')    
     
     #Yearly demand: Population in area * (overall yearly volume / total population)
