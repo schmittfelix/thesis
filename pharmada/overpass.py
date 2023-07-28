@@ -1,35 +1,65 @@
-"""Various functions to interact with the Overpass API for OpenStreetMap data."""
+"""Module for interacting with the Overpass API for OSM data.
 
+The Overpass API provides performant access to OpenStreetMap data via its own query language.
+More information: https://wiki.openstreetmap.org/wiki/Overpass_API
+
+Functions:
+    query_overpass: Query the Overpass API and return the JSON result.
+    regkey_to_osm_id: Resolve a German "Regionalschlüssel" to an OSM relation ID.
+    get_area_geometry: Return the geometry of an area identified by a RegKey.
+    get_precise_geometry: Get precise possible customer sub-areas for a total area.
+"""
+
+from pharmada.regkey import RegKey
 import requests as req
-import json
-import geopandas as gpd
 import osm2geojson as o2g
 
-def query_overpass(query):
-    """Query the Overpass API and return the JSON result."""
+def query_overpass(query: str) -> dict:
+    """Query the Overpass API and return the JSON result.
+    
+    Parameters:
+        query (str): The query to be sent to the Overpass API.
+    
+    Returns:
+        response (dict): The JSON response from the Overpass API.
+        
+    Raises:
+        ValueError: If the response is empty or contains an error.
+    """
 
     overpass_url = 'https://overpass-api.de/api/interpreter'
     response = req.get(overpass_url, params={'data': query}).json()
 
     return response
 
-def resolve_reg_key(regional_key):
-    """Resolve a German "Regionalschlüssel" to an OSM relation."""
+def regkey_to_osm_id(RegKey: RegKey) -> int:
+    """Resolve a German "Regionalschlüssel" to an OSM relation ID.
+    
+    Parameters:
+        RegKey (pharmada.regkey.RegKey): A valid RegKey object.
+        
+    Returns:
+        osm_id (int): The OSM relation ID of the area identified by the RegKey.
+        
+    Raises:
+        ValueError: If the RegKey is invalid or ambiguous.
+    """
 
     # Search OSM data for a relation tagged with the regional key
+
     query = f"""
         [out:json];
-        (relation["de:regionalschluessel"="{regional_key}"];);
+        (relation["de:regionalschluessel"="{RegKey.regkey}"];);
         out tags;
         """
     response = query_overpass(query)
 
     # If the response is empty, add trailing zeros to the regional key to form a full 12-digit key
     if not response['elements']:
-        regional_key = f"{regional_key:0<12}"
+        long_regkey = f"{RegKey.regkey:0<12}"
         query = f"""
             [out:json];
-            (relation["de:regionalschluessel"="{regional_key}"];);
+            (relation["de:regionalschluessel"="{long_regkey}"];);
             out tags;
             """
         response = query_overpass(query)
@@ -64,45 +94,40 @@ def resolve_reg_key(regional_key):
         For Kreise, the key is stored as a short key with 5 digits.
         More information: https://wiki.openstreetmap.org/wiki/Key:de:regionalschluessel"""
     
-    # Evaluates to True if the regional key is a short key
-    short_key = regional_key[:5] == result_key
+    # Evaluates to True if the result key is a short key
+    short_key = RegKey.regkey == result_key
 
-    # Evaluates to True if the regional key is a long key
+    # Evaluates to True if the result key is a long key
     # (i.e. the short key with trailing zeros)
-    long_key = f'{regional_key:0<12}' == result_key
+    long_key = long_regkey == result_key
 
-    # if not short_key or long_key:
-        # raise ValueError("Regional keys from request and result do not match.")
+    if not (short_key or long_key):
+        raise ValueError("RegKeys from request and result do not match.")
     
     # If the response contains no name or id, raise an error
-    if not result['id'] or not result['tags']['name']:
+    if not result['id']:
         raise ValueError("No name or id found for relation.")
     
-    # Result is valid, return it
-    data = {
-        'osm_id':       result['id'],
-        'regional_key': result['tags']['de:regionalschluessel'],
-    }
+    # result is valid, return it
+    osm_id = result['id']
+    return osm_id
 
-    # Add name with prefix if it exists
-    if 'name:prefix' in result['tags']:
-        n = []
-        n.append(result['tags']['name:prefix'])
-        n.append(' ')
-        n.append(result['tags']['name'])
-        data['name'] = ''.join(n)
-    else:
-        data['name'] = result['tags']['name']
+def get_relation_geometry(osm_id: int) -> dict:
+    """Get area geometry for a regional key.
+    
+    Parameters:
+        osm_id (int): The OSM relation ID of the area to get geometry for.
+        
+    Returns:
+        geometry (dict): A GeoJSON dictionary containing the area geometry.
 
-    return data
-
-def get_area_geometry(regional_key):
-    """Get area geometry for a regional key."""
-
-    # Resolve a regional key to OSM relation data
-    data = resolve_reg_key(regional_key)
-    osm_id = data['osm_id']
-    name = data['name']
+    Raises:
+        ValueError: If the OSM ID is invalid or ambiguous.
+        ValueError: If the OSM ID is not a relation.
+        ValueError: If the OSM IDs from the request and the result do not match.
+        ValueError: If the result contains no name or id.
+        ValueError: If the result contains no geometry.
+    """
 
     # Get the relation's geometry data
     query = f"""
@@ -127,9 +152,9 @@ def get_area_geometry(regional_key):
     if result['type'] != 'relation':
         raise ValueError("No relation found for OSM ID.")
     
-    # If the response contains no name or id, raise an error
-    if 'id' not in result or 'name' not in result['tags']:
-        raise ValueError("No name or id found for relation.")
+    # If the response contains no id, raise an error
+    if 'id' not in result:
+        raise ValueError("No id found for relation.")
 
     # If the IDs from the request and the result do not match, raise an error
     if osm_id != result['id']:
@@ -139,36 +164,29 @@ def get_area_geometry(regional_key):
     if not result['members']:
         raise ValueError("No geometry found for relation.")
     
-    # -> Result is valid, continue with geometry extraction
+    # -> Result is valid, extract the geometry
 
     # Extract the geometry from the response
-    geometry = o2g.json2shapes(response)[0]['shape']
+    # (o2g needs the raw response due to a hardcoded access to the 'elements' key in _json2shapes)
+    geometry = o2g.json2geojson(response)
     
-    # Convert the geometry to a GeoDataFrame
-    area_geom = gpd.GeoDataFrame(geometry=[geometry], crs='EPSG:4326')
+    return geometry
 
-    # Add regional key and name to the GeoDataFrame
-    area_geom['regional_key'] = regional_key
-    area_geom['name'] = name
-
-    # If the area is a multipolygon, convert it to a polygon
-    if area_geom.geom_type[0] == 'MultiPolygon':
-        area_geom = area_geom.explode(index_parts=False)
-        area_geom = area_geom.reset_index(drop=True)
-
-    return area_geom
-
-def get_precise_geometry(regional_key, union=True):
-    """Get precise customer areas for a regional key.
+def get_precise_geometry(osm_id: int) -> dict:
+    """Get precise possible customer areas for a regional key.
     
-    This function differs from get_area_geometry() in that it returns
-    a GeoDataFrame with more precise area boundaries to allow for 
-    more realistic customer locations."""
-
-    # Resolve a regional key to OSM relation data
-    data = resolve_reg_key(regional_key)
-    osm_id = data['osm_id']
-    name = data['name']
+    This function differs from get_area_geometry() in that it returns a GeoDataFrame with more precise
+    area boundaries for all areas where customers usually originate to allow for more realistic
+    customer locations.
+    
+    Parameters:
+        osm_id (int): The OSM relation ID of the area to get geometry for.
+    
+    Returns:
+        geometry (dict): A GeoJSON dictionary containing the area geometry. 
+    Raises:
+        ValueError: If the query returns no results.
+    """
 
     # Get a complete set of all realistic customer areas within the area
     query = f"""
@@ -209,24 +227,4 @@ def get_precise_geometry(regional_key, union=True):
     # Extract the geometry from the response
     geometry = o2g.json2geojson(response)
 
-    # Convert the geometry to a GeoDataFrame
-    area_geom = gpd.GeoDataFrame.from_features(geometry, crs='EPSG:4326')
-
-    # Drop unnecessary column 'nodes' if it exists
-    if 'nodes' in area_geom.columns:
-        area_geom.drop(columns=['nodes'], inplace=True)
-
-    # Remove all tags except for name, landuse and amenity
-    area_geom['tags'] = area_geom['tags'].apply(
-        lambda tags: {key: tags[key] for key in ['name', 'landuse', 'amenity'] if key in tags}
-        )
-    
-    # Unite the geometry to a single polygon
-    if union:
-        area_geom = gpd.GeoDataFrame(geometry=[area_geom.unary_union], crs='EPSG:4326')
-
-        # Add metadata to the GeoDataFrame
-        area_geom['regional_key'] = regional_key
-        area_geom['name'] = name
-
-    return area_geom
+    return geometry

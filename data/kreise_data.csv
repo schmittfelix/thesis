@@ -252,9 +252,9 @@ regional_key;name;total
 08437;Landkreis Sigmaringen;131725
 09;Bayern;13176989
 091;Regierungsbezirk Oberbayern;4729243
-09161;Stadt Ingolstadt;138016
+09161;Kreisfreie Stadt Ingolstadt;138016
 09162;Landeshauptstadt München;1487708
-09163;Stadt Rosenheim;63508
+09163;Kreisfreie Stadt Rosenheim;63508
 09171;Landkreis Altötting;112116
 09172;Landkreis Berchtesgadener Land;106389
 09173;Landkreis Bad Tölz-Wolfratshausen;127919
@@ -276,9 +276,9 @@ regional_key;name;total
 09189;Landkreis Traunstein;178447
 09190;Landkreis Weilheim-Schongau;136642
 092;Regierungsbezirk Niederbayern;1253441
-09261;Stadt Landshut;73150
-09262;Stadt Passau;53093
-09263;Stadt Straubing;47854
+09261;Kreisfreie Stadt Landshut;73150
+09262;Kreisfreie Stadt Passau;53093
+09263;Kreisfreie Stadt Straubing;47854
 09271;Landkreis Deggendorf;120521
 09272;Landkreis Freyung-Grafenau;78632
 09273;Landkreis Kelheim;123899
@@ -289,9 +289,9 @@ regional_key;name;total
 09278;Landkreis Straubing-Bogen;102398
 09279;Landkreis Dingolfing-Landau;98045
 093;Regierungsbezirk Oberpfalz;1116741
-09361;Stadt Amberg;41994
-09362;Stadt Regensburg;153542
-09363;Stadt Weiden i.d.OPf.;42472
+09361;Kreisfreie Stadt Amberg;41994
+09362;Kreisfreie Stadt Regensburg;153542
+09363;Kreisfreie Stadt Weiden i.d.OPf.;42472
 09371;Landkreis Amberg-Sulzbach;103277
 09372;Landkreis Cham;128444
 09373;Landkreis Neumarkt I.D.Opf.;136062
@@ -300,10 +300,10 @@ regional_key;name;total
 09376;Landkreis Schwandorf;149239
 09377;Landkreis Tirschenreuth;71648
 094;Regierungsbezirk Oberfranken;1061929
-09461;Stadt Bamberg;77749
-09462;Stadt Bayreuth;73909
-09463;Stadt Coburg;40955
-09464;Stadt Hof;45125
+09461;Kreisfreie Stadt Bamberg;77749
+09462;Kreisfreie Stadt Bayreuth;73909
+09463;Kreisfreie Stadt Coburg;40955
+09464;Kreisfreie Stadt Hof;45125
 09471;Landkreis Bamberg;147697
 09472;Landkreis Bayreuth;103648
 09473;Landkreis Coburg;86544
@@ -314,11 +314,11 @@ regional_key;name;total
 09478;Landkreis Lichtenfels;66741
 09479;Landkreis Wunsiedel I.Fichtelgebirge;71482
 095;Regierungsbezirk Mittelfranken;1777143
-09561;Stadt Ansbach;41662
-09562;Stadt Erlangen;113292
-09563;Stadt Fürth;129122
-09564;Stadt Nürnberg;510632
-09565;Stadt Schwabach;41146
+09561;Kreisfreie Stadt Ansbach;41662
+09562;Kreisfreie Stadt Erlangen;113292
+09563;Kreisfreie Stadt Fürth;129122
+09564;Kreisfreie Stadt Nürnberg;510632
+09565;Kreisfreie Stadt Schwabach;41146
 09571;Landkreis Ansbach;186279
 09572;Landkreis Erlangen-Höchstadt;139323
 09573;Landkreis Fürth;119432
@@ -327,9 +327,9 @@ regional_key;name;total
 09576;Landkreis Roth;127520
 09577;Landkreis Weißenburg-Gunzenhausen;95523
 096;Regierungsbezirk Unterfranken;1320513
-09661;Stadt Aschaffenburg;71381
-09662;Stadt Schweinfurt;53585
-09663;Stadt Würzburg;126933
+09661;Kreisfreie Stadt Aschaffenburg;71381
+09662;Kreisfreie Stadt Schweinfurt;53585
+09663;Kreisfreie Stadt Würzburg;126933
 09671;Landkreis Aschaffenburg;174965
 09672;Landkreis Bad Kissingen;103454
 09673;Landkreis Rhön-Grabfeld;79376
@@ -340,10 +340,10 @@ regional_key;name;total
 09678;Landkreis Schweinfurt;116134
 09679;Landkreis Würzburg;163534
 097;Regierungsbezirk Schwaben;1917979
-09761;Stadt Augsburg;296478
-09762;Stadt Kaufbeuren;45118
-09763;Stadt Kempten (Allgäu);69053
-09764;Stadt Memmingen;44721
+09761;Kreisfreie Stadt Augsburg;296478
+09762;Kreisfreie Stadt Kaufbeuren;45118
+09763;Kreisfreie Stadt Kempten (Allgäu);69053
+09764;Kreisfreie Stadt Memmingen;44721
 09771;Landkreis Aichach-Friedberg;135538
 09772;Landkreis Augsburg;257790
 09773;Landkreis Dillingen A.D.Donau;97985
