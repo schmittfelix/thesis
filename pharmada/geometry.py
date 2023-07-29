@@ -64,7 +64,7 @@ class AreaGeometry:
         unary_geom['name'] = self.name
         unary_geom['osm_id'] = self.osm_id
 
-        self._precise_geometry = unary_geom
+        self.precise_geometry = unary_geom
                 
     def __str__(self) -> str:
         """Returns information about the AreaGeometry object."""

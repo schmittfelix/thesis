@@ -109,7 +109,7 @@ class Customers:
             
         return self.customers <= other.customers
 
-def generate_customers(RegKey: rk.RegKey) -> list[Customer]:
+def generate_customers(RegKey: rk.RegKey) -> gpd.GeoSeries:
 
     # Determine the number of customers to generate
     count = get_demand(RegKey)

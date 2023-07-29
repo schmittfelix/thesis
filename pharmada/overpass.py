@@ -209,8 +209,7 @@ def get_precise_geometry(osm_id: int) -> dict:
             ~"^(landuse|amenity)$"
 
                 //with one of the following values
-            ~"^(residential|commercial|industrial|education|retail|institutional|
-                school|university|hospital|kindergarten|college)$"
+            ~"^(residential|commercial|industrial|education|retail|institutional|school|university|hospital|kindergarten|college)$"
             
                 // save results in set
             ]->.results;
@@ -221,7 +220,7 @@ def get_precise_geometry(osm_id: int) -> dict:
     response = query_overpass(query)
 
     # If the response is empty, raise an error
-    if not response['elements']:
+    if len(response['elements']) == 0:
         raise ValueError("Empty response.")
 
     # Extract the geometry from the response
