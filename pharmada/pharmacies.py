@@ -1,10 +1,7 @@
 """Module for retrieval and presentation of information about pharmacies within a given area.
 
-Area geometry is extracted from OSM.
-
 Classes:
     Pharmacies
-    Pharmacy
     
 Functions:
     pharmacies_in_area:     Get all pharmacies within an area.
@@ -12,16 +9,12 @@ Functions:
     fetch_pharmacies:       Fetch pharmacies from Overpass API.
 """
 
-from calendar import c
 import pharmada.geometry as geo
 import pharmada.overpass as op
-import time
-import ftfy
-import requests as req
 import geopandas as gpd
 from shapely.geometry import Point
 
-class PharmaciesInArea:
+class Pharmacies:
     """Class for Storing and manipulating data about pharmacies in a given area.
     
     Parameters:
@@ -51,16 +44,35 @@ class PharmaciesInArea:
             None
         """
 
+        # check if AreaGeometry is valid
+        if not isinstance(AreaGeometry, geo.AreaGeometry):
+            raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
+        
         self._AreaGeometry = AreaGeometry
         self._pharmacies = fetch_pharmacies(AreaGeometry)
 
+    def reset(self) -> None:
+        """Reset the pharmacies GeoDataFrame.
+        
+        Parameters:
+            None
+            
+        Returns:
+            None
+            
+        Raises:
+            None
+        """
+
+        self._pharmacies = fetch_pharmacies(self.AreaGeometry)
+
     def __str__(self) -> str:
         """Return information about the Pharmacies object."""
-        return f"Pharmacies in {self.AreaGeometry.RegKey.name}."
+        return f"Pharmacies in {self.AreaGeometry.RegKey}"
     
     def __repr__(self) -> str:
         """Return all information about the Pharmacies object."""
-        return f"Pharmacies in {self.AreaGeometry.RegKey.name}.\n{self.pharmacies.info()}"
+        return f"Pharmacies in {self.AreaGeometry.RegKey}.\n{self.pharmacies.info()}"
     
     @property
     def AreaGeometry(self) -> geo.AreaGeometry:
@@ -71,6 +83,10 @@ class PharmaciesInArea:
     def AreaGeometry(self, AreaGeometry: geo.AreaGeometry) -> None:
         """Set AreaGeometry object for the area and update Pharmacies GeoDataFrame."""
 
+        # check if AreaGeometry is valid
+        if not isinstance(AreaGeometry, geo.AreaGeometry):
+            raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
+        
         self._AreaGeometry = AreaGeometry
         self._pharmacies = fetch_pharmacies(AreaGeometry)
 

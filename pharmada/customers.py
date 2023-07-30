@@ -1,4 +1,4 @@
-"""Generate randomized but realistic daily customers for the Pharma VRP.
+"""Module for the generation of randomized but realistic daily customers for the Pharma VRP.
 
     Currently, the customer generation is based on the following assumptions:
     - proportional pharmaceutical demand is equal to the area's population share
@@ -8,8 +8,6 @@
     """
 
 import math
-import pharmada.overpass as op
-import pharmada.regkey as rk
 import pharmada.geometry as geo
 import pandas as pd
 import geopandas as gpd
@@ -20,109 +18,142 @@ UNIT_VOLUME = 1.288e9
 TOTAL_COST = 54.66e9
 
 class Customers:
-    """A collection of customers."""
+    """A collection of customers.
+    
+    Attributes:
+        AreaGeometry (geo.AreaGeometry): The area to generate customers for.
+        customers (gpd.GeoSeries): A GeoSeries containing the customers.
+        
+    Methods:
+        __init__:   Initialize a collection of customers.
+        __str__:    Return information about the Customers object.
+        __repr__:   Return all information about the Customers object.
+    """
 
-    def __init__(self, RegKey: rk.RegKey):
-        """Initialize a collection of customers."""
+    __slots__ = ['_AreaGeometry', '_customers']
 
-        self.customers = generate_customers(RegKey)
-
-    def __repr__(self):
-        """Return a string representation of the customers."""
-
-        return f"Customers: {self.customers}"
-
-    def __str__(self):
-        """Return a string representation of the customers."""
-
-        return f"Customers: {self.customers}"
-
-    def __iter__(self):
-        """Return an iterator over the customers."""
-
-        return iter(self.customers)
-
-    def __len__(self):
-        """Return the number of customers."""
-
-        return len(self.customers)
-
-    def __getitem__(self, index):
-        """Return the customer at the given index."""
-
-        return self.customers[index]
-
-    def __setitem__(self, index, value):
-        """Set the customer at the given index to the given value."""
-
-        self.customers[index] = value
-
-    def __delitem__(self, index):
-        """Delete the customer at the given index."""
-
-        del self.customers[index]
-
-    def __contains__(self, value):
-        """Return whether the customers contain the given value."""
-
-        return value in self.customers
-
-    def __add__(self, other):
-        """Return the union of the customers and the other customers."""
-
-        return Customers(self.customers + other.customers)
-
-    def __iadd__(self, other):
-        """Add the other customers to the customers."""
-
-        self.customers += other.customers
-        return self
-
-    def __mul__(self, other):
-        """Return the customers repeated the given number of times."""
-
-        return Customers(self.customers * other)
-
-    def __imul__(self, other):
-        """Repeat the customers the given number of times."""
-
-        self.customers *= other
-        return self
-
-    def __eq__(self, other):
-        """Return whether the customers are equal to the other customers."""
-
-        return self.customers == other.customers
-
-    def __ne__(self, other):
-        """Return whether the customers are not equal to the other customers."""
-
-        return self.customers != other.customers
-
-    def __lt__(self, other):
-        """Return whether the customers are less than the other customers."""
-
-        return self.customers < other.customers
-
-    def __le__(self, other):
-        """Return whether the customers are less than or equal to the other customers."""
+    def __init__(self, AreaGeometry: geo.AreaGeometry) -> None:
+        """Initialize a collection of customers.
+        
+        Parameters:
+            AreaGeometry (geo.AreaGeometry): The area to generate customers for.
+        
+        Returns:
+            None
             
-        return self.customers <= other.customers
+        Raises:
+            None
+        """
 
-def generate_customers(RegKey: rk.RegKey) -> gpd.GeoSeries:
+        # check if AreaGeometry is valid
+        if not isinstance(AreaGeometry, geo.AreaGeometry):
+            raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
+        
+        self.AreaGeometry = AreaGeometry
+        self._customers = generate_customers(self.AreaGeometry)
+
+    def reset(self) -> None:
+        """Reset the customers GeoDataFrame.
+        
+        Parameters:
+            None
+            
+        Returns:
+            None
+            
+        Raises:
+            None
+        """
+
+        self._customers = generate_customers(self.AreaGeometry)
+
+    def __str__(self) -> str:
+        """Return information about the Customers object."""
+
+        return f'Customers in {self.AreaGeometry.RegKey}'
+    
+    def __repr__(self) -> str:
+        """Return all information about the Customers object."""
+
+        return f'Customers in {self.AreaGeometry.RegKey}.\n{self.customers.info()}'
+    
+    @property
+    def AreaGeometry(self) -> geo.AreaGeometry:
+        """Return the area to generate customers for."""
+        return self._AreaGeometry
+    
+    @AreaGeometry.setter
+    def AreaGeometry(self, AreaGeometry: geo.AreaGeometry) -> None:
+        """Set the area to generate customers for."""
+
+        # check if AreaGeometry is valid
+        if not isinstance(AreaGeometry, geo.AreaGeometry):
+            raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
+        
+        self._AreaGeometry = AreaGeometry
+
+        # update customers GeoSeries when RegKey is changed
+        self._customers = generate_customers(self.AreaGeometry)
+
+    @AreaGeometry.deleter
+    def AreaGeometry(self) -> None:
+        """Protect AreaGeometry and warn user."""
+        raise AttributeError("AreaGeometry must not be deleted, change it instead.")
+
+    @property
+    def customers(self) -> gpd.GeoSeries:
+        """Return a GeoSeries containing the customers."""
+        return self._customers
+    
+    @customers.setter
+    def customers(self) -> None:
+        """Protect customers and warn user."""
+        raise AttributeError("customers must not be changed, change AreaGeometry instead.")
+    
+    @customers.deleter
+    def customers(self) -> None:
+        """Protect customers and warn user."""
+        raise AttributeError("customers must not be deleted, change AreaGeometry instead.")
+
+def generate_customers(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
+    """Generate randomized but realistic daily customers for a given area.
+    
+    Parameters:
+        AreaGeometry (geo.AreaGeometry): The area to generate customers for.
+        
+    Returns:
+        gpd.GeoDataFrame: A GeoDataFrame containing the generated customers.
+        
+    Raises:
+        None
+    """
 
     # Determine the number of customers to generate
-    count = get_demand(RegKey)
+    count = get_demand(AreaGeometry)
 
     # Generate random addresses within the area
-    points = generate_locations(RegKey, count)
+    points = generate_locations(AreaGeometry, count)
+
+    # add metadata to the GeoSeries
+    points['regkey'] = AreaGeometry.RegKey.regkey
+    points['name'] = AreaGeometry.RegKey.name
 
     return points
 
-def get_demand (RegKey) -> int:
-    """Calculate daily pharmaceutical demand for a given area."""
+def get_demand (AreaGeometry: geo.AreaGeometry) -> int:
+    """Calculate daily pharmaceutical demand for a given area.
+    
+    Parameters:
+        AreaGeometry (geo.AreaGeometry): The area to calculate demand for.
+        
+    Returns:
+        int: The daily pharmaceutical demand for the given area.
+        
+    Raises:
+        None
+    """
 
-    regkey = RegKey.regkey
+    regkey = AreaGeometry.regkey
     
     # Read in the data from a dedicated csv file
     df = pd.read_csv('./data/kreise_data.csv', sep=';',
@@ -136,14 +167,36 @@ def get_demand (RegKey) -> int:
     
     return math.trunc(daily_demand)
 
-def generate_locations (AreaGeometry: geo.AreaGeometry, count: int) -> gpd.GeoSeries:
-    """Generate random addresses within an area."""
+def generate_locations (AreaGeometry: geo.AreaGeometry, count: int) -> gpd.GeoDataFrame:
+    """Generate random addresses within an area.
+    
+    Parameters:
+        AreaGeometry (geo.AreaGeometry): The area to generate addresses for.
+        count (int): The number of addresses to generate.
+        
+    Returns:
+        gpd.GeoSeries: A GeoSeries containing the generated addresses.
+        
+    Raises:
+        None
+    """
+
+    # Unite all sub-areas in the AreaGeometry's precise geometry into one geometry
+    AreaGeometry.unite_precise_geometry()
 
     # Get the precise area geometry from the given AreaGeometry object
     area_geom = AreaGeometry.precise_geometry
 
-    points = area_geom.sample_points(count)
+    # Generate random points within the area
+    samples = area_geom.sample_points(count)
+
+    # Convert the GeoSeries to a GeoDataFrame and set the crs
+    points = gpd.GeoDataFrame(geometry=samples)
+    points.crs = area_geom.crs
+
+    # Explode the MultiPoint into single Points
+    points = points.explode(ignore_index=True, inplace=True)
     
-    #TODO: Validate addresses with either Google Maps API (could run into rate limits) or OpenStreetMap Nominatim (probably best to host own instance)
+    #TODO: Possibly validate addresses with Nominatim-style algorithm
 
     return points

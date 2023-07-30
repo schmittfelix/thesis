@@ -7,8 +7,10 @@ Functions:
     get_area_geometry:      Return the geometry of an area.
     get_precise_geometry:   Return the precise geometry of an area.
     remove_enclosed:        Remove enclosed geometries from a GeoDataFrame.
+    remove_oob:             Remove out-of-bounds geometries from a GeoDataFrame.
 """
 
+from re import T
 import pharmada.overpass as op
 import pharmada.regkey as rk
 import geopandas as gpd
@@ -36,10 +38,30 @@ class AreaGeometry:
     def __init__(self, RegKey: rk.RegKey) -> None:
         """Initialize AreaGeometry object."""
 
+        # check if RegKey is valid
+        if not isinstance(RegKey, rk.RegKey):
+            raise TypeError("RegKey must be of type RegKey.")
+
         self._RegKey = RegKey
         self._osm_id = op.regkey_to_osm_id(RegKey)
         self._geometry = get_area_geometry(RegKey, self.osm_id)
-        self._precise_geometry = get_precise_geometry(self.osm_id)
+        self._precise_geometry = get_precise_geometry(self.geometry, self.osm_id)
+
+    def reset(self) -> None:
+        """Reset the geometry GeoDataFrames.
+        
+        Parameters:
+            None
+            
+        Returns:
+            None
+            
+        Raises:
+            None
+        """
+
+        self._geometry = get_area_geometry(self.RegKey, self.osm_id)
+        self._precise_geometry = get_precise_geometry(self.geometry, self.osm_id)
 
     def unite_precise_geometry(self) -> None:
         """Unite all geometries in a GeoDataFrame to a single geometry.
@@ -64,19 +86,19 @@ class AreaGeometry:
         unary_geom['name'] = self.name
         unary_geom['osm_id'] = self.osm_id
 
-        self.precise_geometry = unary_geom
+        self._precise_geometry = unary_geom
                 
     def __str__(self) -> str:
         """Returns information about the AreaGeometry object."""
-        return f"AreaGeometry object for {self._RegKey.name} ({self._RegKey.regkey})"
+        return f"AreaGeometry for {self.RegKey}"
     
     def __repr__(self) -> str:
         """Returns information about the AreaGeometry object."""
         
-        description = f"""AreaGeometry object for {self._RegKey.name} ({self._RegKey.regkey}).
-                        Contains the following geometries: {self._geometry.info()}
-                        and {self._precise_geometry.info()}."""
-        return description
+        description = f"AreaGeometry for {self.RegKey}.\n"
+        geoms_description = f"""Contains the following geometries:\n{self.geometry}\n{self.precise_geometry}"""
+
+        return ''.join(description, geoms_description)
 
     @property
     def RegKey(self) -> rk.RegKey:
@@ -86,12 +108,17 @@ class AreaGeometry:
     @RegKey.setter
     def RegKey(self, RegKey: rk.RegKey) -> None:
         """Set area RegKey."""
+
+        # check if RegKey is valid
+        if not isinstance(RegKey, rk.RegKey):
+            raise TypeError("RegKey must be of type RegKey.")
+        
         self._RegKey = RegKey
 
         # update osm_id, geometry and precise_geometry when RegKey is changed
         self._osm_id = op.regkey_to_osm_id(self.RegKey)
         self._geometry = get_area_geometry(self.RegKey, self._osm_id)
-        self._precise_geometry = get_precise_geometry(self._osm_id)
+        self._precise_geometry = get_precise_geometry(self.geometry, self._osm_id)
 
     @RegKey.deleter
     def RegKey(self) -> None:
@@ -203,10 +230,11 @@ def get_area_geometry(RegKey: rk.RegKey, osm_id: int) -> gpd.GeoDataFrame:
 
     return area_geom
 
-def get_precise_geometry( osm_id: int) -> gpd.GeoDataFrame:
+def get_precise_geometry(boundary: gpd.GeoDataFrame, osm_id: int) -> gpd.GeoDataFrame:
     """Get precise customer areas for given RegKey.
     
     Parameters:
+        boundary:   GeoDataFrame containing the boundary of the area.
         osm_id:     OSM ID for the area.
         
     Returns:
@@ -232,8 +260,13 @@ def get_precise_geometry( osm_id: int) -> gpd.GeoDataFrame:
         lambda tags: {key: tags[key] for key in ['name', 'landuse', 'amenity'] if key in tags}
         )
     
+    # remove all geometries which are not completely within the area
+    area_geom = remove_oob(boundary, area_geom)
+
     # Remove all geometries which are enclosed by other geometries
     area_geom = remove_enclosed(area_geom)
+
+
 
     return area_geom
 
@@ -278,6 +311,22 @@ def remove_enclosed(area_geom: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     to_drop = list(set(to_drop))
 
     # drop contained geometries
-    area_geom = area_geom.drop(to_drop, axis=0)
+    area_geom.drop(to_drop, axis=0, inplace=True)
+    area_geom.reset_index(drop=True, inplace=True)
 
     return area_geom
+
+def remove_oob(boundary: gpd.GeoDataFrame, area_geom: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Remove geometries from area_geom which are not enclosed by a single boundary geometry."""
+
+    to_drop = []
+
+    for geom in area_geom.iterrows():
+        if not boundary.geometry.contains(geom[1].geometry)[0]:
+            to_drop.append(geom[0])
+
+    area_geom.drop(to_drop, axis=0, inplace=True)
+    area_geom.reset_index(drop=True, inplace=True)
+
+    return area_geom
+

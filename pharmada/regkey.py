@@ -49,12 +49,11 @@ class RegKey:
 
     def __str__(self) -> str:
         """Return information about the RegKey object."""
-        return f'{self.name} ({self.regkey}))'
+        return f'{self.name} ({self.regkey})'
     
     def __repr__(self) -> str:
         """Return all information about the RegKey object."""
-        class_name = type(self).__name__
-        return f'{class_name}: {self.name} ({self.regkey}))'
+        return f'RegKey for {self.name} ({self.regkey})'
     
     def __eq__(self, other) -> bool:
         """Check if two RegKey objects are equal."""
@@ -144,6 +143,9 @@ def get_regkey_list(file: str = './data/kreise_data.csv') -> pd.DataFrame:
     # Drop the unnecessary 'total' column containing population data
     regkey_list.drop(columns=['total'])
 
+    # drop rows where the index value is not a valid RegKey
+    regkey_list = regkey_list[regkey_list.index.str.len() == 5]
+
     return regkey_list
 
 def validate_regkey(regkey: str) -> bool:
@@ -207,6 +209,9 @@ def regkey_to_name(regkey: str) -> str:
     
     Returns:
         name (str): The name of the area with the given RegKey.
+    
+    Raises:
+        None
     """
 
     # Check if the RegKey is valid
