@@ -4,5 +4,12 @@
         "pharmada"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./pharmada",
+        "-p",
+        "test*.py"
+    ]
 }

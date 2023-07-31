@@ -107,7 +107,7 @@ class RegKey:
         """Protect the name of the regkey from deletion."""
         raise AttributeError("RegKey name cannot be deleted, change value of regkey instead.")
 
-def get_regkey_list(file: str = './data/kreise_data.csv') -> pd.DataFrame:
+def get_regkey_list(file: str = './data/kreise_data.csv', drop_population: bool = True) -> pd.DataFrame:
     """Read the list of RegKeys from a dedicated file.
     
     Data is taken from the German Regionalatlas database (regionalstatistik.de).
@@ -115,6 +115,7 @@ def get_regkey_list(file: str = './data/kreise_data.csv') -> pd.DataFrame:
     
     Parameters:
         file (str): The path to the file containing the RegKeys.
+        drop_population (bool): Whether to drop the 'population' column from the DataFrame. 
     
     Returns:
         regkey_list (pd.DataFrame): A DataFrame containing the RegKeys.
@@ -128,20 +129,18 @@ def get_regkey_list(file: str = './data/kreise_data.csv') -> pd.DataFrame:
     if not isinstance(file, str):
         raise TypeError("File path must be a string.")
     
-    # Check if the file exists
+    # Check if the file exists and read it into a DataFrame
     try:
-        open(file)
+        with open(file) as f:
+            regkey_list = pd.read_csv(f, sep=';', encoding='utf-8',
+                                      header=0, index_col=0, engine='python',
+                                      converters={'regional_key': str})
     except FileNotFoundError:
         raise FileNotFoundError("File not found.")
     
-
-    # Read in the data from a dedicated csv file
-    regkey_list = pd.read_csv(file, sep=';',
-                    header=0, index_col=0, encoding='utf-8',
-                    converters={'regional_key': str}, engine='python')
-    
-    # Drop the unnecessary 'total' column containing population data
-    regkey_list.drop(columns=['total'])
+    # If not negated, drop the unnecessary 'population' column containing population data
+    if drop_population:
+        regkey_list.drop(columns=['population'])
 
     # drop rows where the index value is not a valid RegKey
     regkey_list = regkey_list[regkey_list.index.str.len() == 5]

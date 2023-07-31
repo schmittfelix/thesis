@@ -1,6 +1,6 @@
 import networkx as nx
 from matplotlib import pyplot as plt
-from vrpy import VehicleRoutingProblem
+#from vrpy import VehicleRoutingProblem
 
 
 #first drawing test

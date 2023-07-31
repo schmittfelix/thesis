@@ -153,6 +153,7 @@ def get_demand (AreaGeometry: geo.AreaGeometry) -> int:
         None
     """
 
+    # Get the area's regional key
     regkey = AreaGeometry.regkey
     
     # Read in the data from a dedicated csv file
@@ -160,7 +161,7 @@ def get_demand (AreaGeometry: geo.AreaGeometry) -> int:
                      header=0, index_col=0, encoding='utf-8', converters={'regional_key': str}, engine='python')    
     
     #Yearly demand: Population in area * (overall yearly volume / total population)
-    yearly_demand = df.loc[regkey, 'total'] * (UNIT_VOLUME / POPULATION)
+    yearly_demand = df.loc[regkey, 'population'] * (UNIT_VOLUME / POPULATION)
 
     #Return daily demand rounded to the nearest integer
     daily_demand = round(yearly_demand / 365)
