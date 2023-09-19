@@ -17,30 +17,31 @@ POPULATION = 84.3e6
 UNIT_VOLUME = 1.288e9
 TOTAL_COST = 54.66e9
 
+
 class Customers:
     """A collection of customers.
-    
+
     Attributes:
         AreaGeometry (geo.AreaGeometry): The area to generate customers for.
         customers (gpd.GeoSeries): A GeoSeries containing the customers.
-        
+
     Methods:
         __init__:   Initialize a collection of customers.
         __str__:    Return information about the Customers object.
         __repr__:   Return all information about the Customers object.
     """
 
-    __slots__ = ['_AreaGeometry', '_customers']
+    __slots__ = ["_AreaGeometry", "_customers"]
 
     def __init__(self, AreaGeometry: geo.AreaGeometry) -> None:
         """Initialize a collection of customers.
-        
+
         Parameters:
             AreaGeometry (geo.AreaGeometry): The area to generate customers for.
-        
+
         Returns:
             None
-            
+
         Raises:
             None
         """
@@ -48,20 +49,19 @@ class Customers:
         # check if AreaGeometry is valid
         if not isinstance(AreaGeometry, geo.AreaGeometry):
             raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
-        
-        
+
         self.AreaGeometry = AreaGeometry
         self._customers = generate_customers(self.AreaGeometry)
 
     def reset(self) -> None:
         """Reset the customers GeoDataFrame.
-        
+
         Parameters:
             None
-            
+
         Returns:
             None
-            
+
         Raises:
             None
         """
@@ -71,18 +71,18 @@ class Customers:
     def __str__(self) -> str:
         """Return information about the Customers object."""
 
-        return f'Customers in {self.AreaGeometry.RegKey}'
-    
+        return f"Customers in {self.AreaGeometry.RegKey}"
+
     def __repr__(self) -> str:
         """Return all information about the Customers object."""
 
-        return f'Customers in {self.AreaGeometry.RegKey}.\n{self.customers.info()}'
-    
+        return f"Customers in {self.AreaGeometry.RegKey}.\n{self.customers.info()}"
+
     @property
     def AreaGeometry(self) -> geo.AreaGeometry:
         """Return the area to generate customers for."""
         return self._AreaGeometry
-    
+
     @AreaGeometry.setter
     def AreaGeometry(self, AreaGeometry: geo.AreaGeometry) -> None:
         """Set the area to generate customers for."""
@@ -90,7 +90,7 @@ class Customers:
         # check if AreaGeometry is valid
         if not isinstance(AreaGeometry, geo.AreaGeometry):
             raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
-        
+
         self._AreaGeometry = AreaGeometry
 
         # update customers GeoSeries when RegKey is changed
@@ -105,26 +105,31 @@ class Customers:
     def customers(self) -> gpd.GeoSeries:
         """Return a GeoSeries containing the customers."""
         return self._customers
-    
+
     @customers.setter
     def customers(self) -> None:
         """Protect customers and warn user."""
-        raise AttributeError("customers must not be changed, change AreaGeometry instead.")
-    
+        raise AttributeError(
+            "customers must not be changed, change AreaGeometry instead."
+        )
+
     @customers.deleter
     def customers(self) -> None:
         """Protect customers and warn user."""
-        raise AttributeError("customers must not be deleted, change AreaGeometry instead.")
+        raise AttributeError(
+            "customers must not be deleted, change AreaGeometry instead."
+        )
+
 
 def generate_customers(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
     """Generate randomized but realistic daily customers for a given area.
-    
+
     Parameters:
         AreaGeometry (geo.AreaGeometry): The area to generate customers for.
-        
+
     Returns:
         gpd.GeoDataFrame: A GeoDataFrame containing the generated customers.
-        
+
     Raises:
         None
     """
@@ -136,45 +141,47 @@ def generate_customers(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
     points = generate_locations(AreaGeometry, count)
 
     # add metadata to the GeoSeries
-    points['regkey'] = AreaGeometry.RegKey.regkey
-    points['name'] = AreaGeometry.RegKey.name
+    points["regkey"] = AreaGeometry.RegKey.regkey
+    points["name"] = AreaGeometry.RegKey.name
 
     return points
 
-def get_demand (AreaGeometry: geo.AreaGeometry) -> int:
+
+def get_demand(AreaGeometry: geo.AreaGeometry) -> int:
     """Calculate daily pharmaceutical demand for a given area.
-    
+
     Parameters:
         AreaGeometry (geo.AreaGeometry): The area to calculate demand for.
-        
+
     Returns:
         int: The daily pharmaceutical demand for the given area.
-        
+
     Raises:
         None
     """
 
     # Get the area's population
-    area_pop = AreaGeometry.RegKey.population  
-    
-    #Yearly demand: Population in area * (overall yearly volume / total population)
+    area_pop = AreaGeometry.RegKey.population
+
+    # Yearly demand: Population in area * (overall yearly volume / total population)
     yearly_demand = area_pop * (UNIT_VOLUME / POPULATION)
 
-    #Return daily demand rounded to the nearest integer
+    # Return daily demand rounded to the nearest integer
     daily_demand = round(yearly_demand / 365)
-    
+
     return math.trunc(daily_demand)
 
-def generate_locations (AreaGeometry: geo.AreaGeometry, count: int) -> gpd.GeoDataFrame:
+
+def generate_locations(AreaGeometry: geo.AreaGeometry, count: int) -> gpd.GeoDataFrame:
     """Generate random addresses within an area.
-    
+
     Parameters:
         AreaGeometry (geo.AreaGeometry): The area to generate addresses for.
         count (int): The number of addresses to generate.
-        
+
     Returns:
         gpd.GeoSeries: A GeoSeries containing the generated addresses.
-        
+
     Raises:
         None
     """
@@ -191,7 +198,7 @@ def generate_locations (AreaGeometry: geo.AreaGeometry, count: int) -> gpd.GeoDa
 
     # Explode the MultiPoint into single Points
     points = points.explode(ignore_index=True, inplace=True)
-    
-    #TODO: Possibly validate addresses with Nominatim-style algorithm
+
+    # TODO: Possibly validate addresses with Nominatim-style algorithm
 
     return points

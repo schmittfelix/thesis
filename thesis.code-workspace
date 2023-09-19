@@ -10,7 +10,15 @@
 		"python.analysis.indexing": true,
 		"python.analysis.autoImportCompletions": true,
 		"jupyter.notebookFileRoot": "/Users/felix/Documents/thesis",
-		"notebook.displayOrder": ["application/json", "text/x-json", "text/x-html"]
+		"notebook.displayOrder": [
+			"application/json",
+			"text/x-json",
+			"text/x-html"
+		],
+		"editor.rulers": [
+			80,
+			120
+		]
 	},
 	"launch": {
 		"version": "0.2.0",

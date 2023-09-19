@@ -14,9 +14,10 @@ import pharmada.overpass as op
 import geopandas as gpd
 from shapely.geometry import Point
 
+
 class Pharmacies:
     """Class for Storing and manipulating data about pharmacies in a given area.
-    
+
     Parameters:
         AreaGeometry:   AreaGeometry object for the area.
 
@@ -29,17 +30,17 @@ class Pharmacies:
         __repr__:  Return all information about the Pharmacies object.
     """
 
-    __slots__ = ('_AreaGeometry', '_pharmacies')
+    __slots__ = ("_AreaGeometry", "_pharmacies")
 
     def __init__(self, AreaGeometry: geo.AreaGeometry) -> None:
         """Initialize Pharmacies object.
-        
+
         Parameters:
             AreaGeometry:   AreaGeometry object for the area.
-            
+
         Returns:
             None
-            
+
         Raises:
             None
         """
@@ -47,19 +48,19 @@ class Pharmacies:
         # check if AreaGeometry is valid
         if not isinstance(AreaGeometry, geo.AreaGeometry):
             raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
-        
+
         self._AreaGeometry = AreaGeometry
         self._pharmacies = fetch_pharmacies(AreaGeometry)
 
     def reset(self) -> None:
         """Reset the pharmacies GeoDataFrame.
-        
+
         Parameters:
             None
-            
+
         Returns:
             None
-            
+
         Raises:
             None
         """
@@ -69,16 +70,16 @@ class Pharmacies:
     def __str__(self) -> str:
         """Return information about the Pharmacies object."""
         return f"Pharmacies in {self.AreaGeometry.RegKey}"
-    
+
     def __repr__(self) -> str:
         """Return all information about the Pharmacies object."""
         return f"Pharmacies in {self.AreaGeometry.RegKey}.\n{self.pharmacies.info()}"
-    
+
     @property
     def AreaGeometry(self) -> geo.AreaGeometry:
         """AreaGeometry object for the area."""
         return self._AreaGeometry
-    
+
     @AreaGeometry.setter
     def AreaGeometry(self, AreaGeometry: geo.AreaGeometry) -> None:
         """Set AreaGeometry object for the area and update Pharmacies GeoDataFrame."""
@@ -86,7 +87,7 @@ class Pharmacies:
         # check if AreaGeometry is valid
         if not isinstance(AreaGeometry, geo.AreaGeometry):
             raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
-        
+
         self._AreaGeometry = AreaGeometry
         self._pharmacies = fetch_pharmacies(AreaGeometry)
 
@@ -94,31 +95,34 @@ class Pharmacies:
     def AreaGeometry(self) -> None:
         """Protect AreaGeometry object and warn user."""
         raise AttributeError("AreaGeometry object must not be deleted.")
-    
+
     @property
     def pharmacies(self) -> gpd.GeoDataFrame:
         """GeoDataFrame of pharmacies within the area."""
         return self._pharmacies
-    
+
     @pharmacies.setter
     def pharmacies(self) -> None:
         """Protect pharmacies GeoDataFrame and warn user."""
-        raise AttributeError("Pharmacies Attribute must not be deleted. Change AreaGeometry instead.")
-    
+        raise AttributeError(
+            "Pharmacies Attribute must not be deleted. Change AreaGeometry instead."
+        )
+
     @pharmacies.deleter
     def pharmacies(self) -> None:
         """Protect pharmacies GeoDataFrame and warn user."""
         raise AttributeError("Pharmacies Attribute must not be deleted.")
 
+
 def calculate_area_radius(AreaGeometry: geo.AreaGeometry) -> int:
     """Calculate area radius from boundaries.
-    
+
     Parameters:
         AreaGeometry:   AreaGeometry object for the area.
-        
+
     Returns:
         area_radius:    The radius of the area in meters.
-        
+
     Raises:
         None
     """
@@ -127,20 +131,21 @@ def calculate_area_radius(AreaGeometry: geo.AreaGeometry) -> int:
     area_geom = AreaGeometry.geometry
 
     area_geom = area_geom.to_crs(area_geom.estimate_utm_crs())
-    
+
     area_radius = area_geom.minimum_bounding_radius()
 
     return round(area_radius[0], 0)
 
+
 def fetch_pharmacies(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
     """Get pharmacies within area from Overpass API.
-    
+
     Parameters:
         AreaGeometry:   AreaGeometry object for the area.
-        
+
     Returns:
         pharmacies:     GeoDataFrame of pharmacies within the area.
-        
+
     Raises:
         None
     """
@@ -165,44 +170,46 @@ def fetch_pharmacies(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
     response = op.query_overpass(query)
 
     # Raise error if no pharmacies were found
-    if len(response['elements']) == 0:
+    if len(response["elements"]) == 0:
         raise ValueError("No pharmacies found in area.")
-    
+
     pharmacies = []
 
-    for pharmacy in response['elements']:
-        tags = pharmacy['tags']
-        
+    for pharmacy in response["elements"]:
+        tags = pharmacy["tags"]
+
         # build address in regular german format
         address = {}
-        for tag in ['addr:street', 'addr:housenumber', 'addr:postcode', 'addr:city']:
+        for tag in ["addr:street", "addr:housenumber", "addr:postcode", "addr:city"]:
             # Remove 'addr:' from the tag name
-            clean_tag = tag.replace('addr:', '')
+            clean_tag = tag.replace("addr:", "")
 
             # If tag is present, add it to the address, else add empty string
             if tag in tags:
                 address[clean_tag] = tags[tag]
             else:
-                address[clean_tag] = ''
-        
+                address[clean_tag] = ""
+
         formatted_address = f"{address['street']} {address['housenumber']}, {address['postcode']} {address['city']}"
 
         # If name is present, add it to the address, else add empty string
-        if 'name' in tags:
+        if "name" in tags:
             name = f"{tags['name']}"
         else:
-            name = ''
+            name = ""
 
         # collect pharmacy data
         pharmacy_dict = {
-            'id': pharmacy['id'],
-            'name': name,
-            'address': formatted_address,
-            'location': Point(pharmacy['lon'], pharmacy['lat'])
+            "id": pharmacy["id"],
+            "name": name,
+            "address": formatted_address,
+            "location": Point(pharmacy["lon"], pharmacy["lat"]),
         }
         pharmacies.append(pharmacy_dict)
 
     # convert to GeoDataFrame
-    pharmacies = gpd.GeoDataFrame(pharmacies, geometry='location', crs=AreaGeometry.geometry.crs)
+    pharmacies = gpd.GeoDataFrame(
+        pharmacies, geometry="location", crs=AreaGeometry.geometry.crs
+    )
 
     return pharmacies
