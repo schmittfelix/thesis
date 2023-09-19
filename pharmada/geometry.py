@@ -10,7 +10,6 @@ Functions:
     remove_oob:             Remove out-of-bounds geometries from a GeoDataFrame.
 """
 
-from re import T
 import pharmada.overpass as op
 import pharmada.regkey as rk
 import geopandas as gpd
@@ -63,7 +62,7 @@ class AreaGeometry:
         self._geometry = get_area_geometry(self.RegKey, self.osm_id)
         self._precise_geometry = get_precise_geometry(self.geometry, self.osm_id)
 
-    def unite_precise_geometry(self) -> None:
+    def united_precise_geometry(self) -> gpd.GeoDataFrame:
         """Unite all geometries in a GeoDataFrame to a single geometry.
         
         This step is necessary before using the geometry for customer generation.
@@ -72,7 +71,7 @@ class AreaGeometry:
             None
             
         Returns:
-            None
+            unary_geom (gpd.GeoDataFrame):  A GeoDataFrame containing a single geometry.
             
         Raises:
             None
@@ -86,7 +85,7 @@ class AreaGeometry:
         unary_geom['name'] = self.name
         unary_geom['osm_id'] = self.osm_id
 
-        self._precise_geometry = unary_geom
+        return unary_geom
                 
     def __str__(self) -> str:
         """Returns information about the AreaGeometry object."""
@@ -265,8 +264,6 @@ def get_precise_geometry(boundary: gpd.GeoDataFrame, osm_id: int) -> gpd.GeoData
 
     # Remove all geometries which are enclosed by other geometries
     area_geom = remove_enclosed(area_geom)
-
-
 
     return area_geom
 

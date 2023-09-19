@@ -49,6 +49,7 @@ class Customers:
         if not isinstance(AreaGeometry, geo.AreaGeometry):
             raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
         
+        
         self.AreaGeometry = AreaGeometry
         self._customers = generate_customers(self.AreaGeometry)
 
@@ -153,15 +154,11 @@ def get_demand (AreaGeometry: geo.AreaGeometry) -> int:
         None
     """
 
-    # Get the area's regional key
-    regkey = AreaGeometry.regkey
-    
-    # Read in the data from a dedicated csv file
-    df = pd.read_csv('./data/kreise_data.csv', sep=';',
-                     header=0, index_col=0, encoding='utf-8', converters={'regional_key': str}, engine='python')    
+    # Get the area's population
+    area_pop = AreaGeometry.RegKey.population  
     
     #Yearly demand: Population in area * (overall yearly volume / total population)
-    yearly_demand = df.loc[regkey, 'population'] * (UNIT_VOLUME / POPULATION)
+    yearly_demand = area_pop * (UNIT_VOLUME / POPULATION)
 
     #Return daily demand rounded to the nearest integer
     daily_demand = round(yearly_demand / 365)
@@ -183,10 +180,7 @@ def generate_locations (AreaGeometry: geo.AreaGeometry, count: int) -> gpd.GeoDa
     """
 
     # Unite all sub-areas in the AreaGeometry's precise geometry into one geometry
-    AreaGeometry.unite_precise_geometry()
-
-    # Get the precise area geometry from the given AreaGeometry object
-    area_geom = AreaGeometry.precise_geometry
+    area_geom = AreaGeometry.united_precise_geometry()
 
     # Generate random points within the area
     samples = area_geom.sample_points(count)

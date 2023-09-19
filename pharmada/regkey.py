@@ -22,8 +22,9 @@ class RegKey:
     """A German Regionalschlüssel.
     
     Attributes:
-        regkey (str): The regkey value.
+        regkey (str): The regional key.
         name (str): The name of the area identified by the regkey.
+        population (int): The population of the area identified by the regkey.
         
     Methods:
         __init__: Initialize a RegKey object.
@@ -33,19 +34,28 @@ class RegKey:
         __hash__: Return the hash of the RegKey object.
     """
 
-    __slots__ = ('_regkey', '_name')
+    __slots__ = ('_regkey', '_name', '_population')
 
     def __init__(self, regkey: str) -> None:
         """Initialize a RegKey object.
 
         Parameters:
-            regkey (str): A valid regkey value or area name."""
+            regkey (str): A valid regkey value or area name.
+            
+        Returns:
+            None
+            
+        Raises:
+            None
+        """
         
         # try to infer a regkey from the input
         regkey = infer_regkey(regkey)   
         
+        # set the regkey, name and population attributes
         self._regkey = regkey
         self._name = regkey_to_name(regkey)
+        self._population = regkey_to_population(regkey)
 
     def __str__(self) -> str:
         """Return information about the RegKey object."""
@@ -53,7 +63,7 @@ class RegKey:
     
     def __repr__(self) -> str:
         """Return all information about the RegKey object."""
-        return f'RegKey for {self.name} ({self.regkey})'
+        return f'RegKey object for {self.name} ({self.regkey}). Population: {self.population}'
     
     def __eq__(self, other) -> bool:
         """Check if two RegKey objects are equal."""
@@ -63,6 +73,10 @@ class RegKey:
         """Return the hash of the RegKey object."""
         return hash(self.regkey)
     
+    def to_dict(self) -> dict:
+        """Return a dictionary representation of the RegKey object."""
+        return {'regkey': self.regkey, 'name': self.name, 'population': self.population}
+
     @property
     def regkey(self):
         """Return the regkey value."""
@@ -106,6 +120,21 @@ class RegKey:
     def name(self) -> None:
         """Protect the name of the regkey from deletion."""
         raise AttributeError("RegKey name cannot be deleted, change value of regkey instead.")
+
+    @property
+    def population(self):
+        """Return the population of the regkey."""
+        return self._population
+    
+    @population.setter
+    def population(self) -> None:
+        """Protect the population of the regkey from being changed."""
+        raise AttributeError("RegKey population cannot be changed, change value of regkey instead.")
+    
+    @population.deleter
+    def population(self) -> None:
+        """Protect the population of the regkey from deletion."""
+        raise AttributeError("RegKey population cannot be deleted, change value of regkey instead.")
 
 def get_regkey_list(file: str = './data/kreise_data.csv', drop_population: bool = True) -> pd.DataFrame:
     """Read the list of RegKeys from a dedicated file.
@@ -256,12 +285,36 @@ def name_to_regkey(name: str) -> str:
             name = regkey_list.loc[regkey, 'name']
             output.append(f"{name} ({regkey})")
         
-        raise ValueError(f"Multiple RegKeys found for given name: {', '.join(output  )}.")
+        raise ValueError(f"Multiple RegKeys found for given name: {', '.join(output)}.")
     
     # if only one regkey is found, return it
     regkey = regkeys[0]
 
     return regkey
+
+def regkey_to_population(regkey: str) -> int:
+    """Get the population of an administrative area from its RegKey.
+    
+    Parameters:
+        regkey (str): A RegKey intended to resolve to a population.
+    
+    Returns:
+        population (int): The population of the area with the given RegKey.
+    
+    Raises:
+        None
+    """
+
+    # Check if the RegKey is valid
+    validate_regkey(regkey)
+
+    # Get the list of RegKeys
+    regkey_list = get_regkey_list()
+    
+    # Get the population of the area with the given RegKey
+    population = regkey_list.loc[regkey, 'population']
+
+    return population
 
 def infer_regkey(input: [RegKey, str]) -> str:
     """Try to infer a valid regkey from input.
@@ -286,7 +339,7 @@ def infer_regkey(input: [RegKey, str]) -> str:
         return input
     
     # If the input could be a name, try to convert it to a regkey and return it
-    if isinstance(input, str) and not input.isdigit():
+    if isinstance(input, str):
         return name_to_regkey(input)
     
     # If none of the above apply, raise an error
