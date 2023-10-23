@@ -236,12 +236,6 @@ def _get_area_geometry(RegKey: rk.RegKey, osm_id: int) -> gpd.GeoDataFrame:
     area_geom["regkey"] = RegKey.regkey
     area_geom["name"] = RegKey.name
 
-    """
-    # If the area is a multipolygon, convert it to a polygon
-    if area_geom.geom_type[0] == "MultiPolygon":
-        area_geom = area_geom.explode(index_parts=False)
-        area_geom = area_geom.reset_index(drop=True)
-    """
     return area_geom
 
 
@@ -335,13 +329,18 @@ def _remove_enclosed(area_geom: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 def _remove_oob(
     boundary: gpd.GeoDataFrame, area_geom: gpd.GeoDataFrame
 ) -> gpd.GeoDataFrame:
-    """Remove geometries from area_geom which are not enclosed by a single boundary geometry."""
+    """Clip all geometries in area_geom to be within the boundary."""
 
     to_drop = []
 
     for geom in area_geom.iterrows():
         if not boundary.geometry.contains(geom[1].geometry)[0]:
-            to_drop.append(geom[0])
+            # Clip uncontained geometry to the boundary
+            geom[1].geometry = geom[1].geometry.intersection(boundary.geometry)
+
+            # If the geometry is now empty, drop it
+            if geom[1].empty:
+                to_drop.append(geom[0])
 
     area_geom.drop(to_drop, axis=0, inplace=True)
     area_geom.reset_index(drop=True, inplace=True)
@@ -361,8 +360,8 @@ def _get_pop_cells(area_geom: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
     # Calculate the center point of the southwest and northeast corner cells
     # defining the area's bounding box.
-    area_geom.to_crs(epsg=3035, inplace=True)
-    bounds = area_geom.total_bounds
+    area = area_geom.to_crs(epsg=3035)
+    bounds = area.total_bounds
 
     # Round down to the nearest hectometre and add/subtract 50m to calculate the
     # center point for each of the four corner cells.
@@ -414,7 +413,7 @@ def _get_pop_cells(area_geom: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     # Drop all grid cells that are outside of the area's geometry
     to_drop = []
     for index, row in cells.iterrows():
-        if not area_geom.contains(row.geometry)[0]:
+        if not area.contains(row.geometry)[0]:
             to_drop.append(index)
 
     cells.drop(to_drop, inplace=True)
