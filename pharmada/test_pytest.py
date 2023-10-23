@@ -1,11 +1,11 @@
 """Module to test the pharmada package using pytest."""
 
-import pharmada.overpass as overpass
-import pharmada.regkey as regkey
-import pharmada.geometry as geometry
-import pharmada.customers as customers
-import pharmada.pharmacies as pharmacies
-import pharmada.data as data
+import pharmada.data.overpass as overpass
+import pharmada.data.regkey as regkey
+import pharmada.data.geometry as geometry
+import pharmada.data.customers as customers
+import pharmada.data.pharmacies as pharmacies
+import pharmada.data.data as data
 
 """Test the overpass module."""
 
@@ -33,8 +33,8 @@ def test_query_overpass():
 
 def test_regkey_to_osm_id():
     """Test the get_relation_id function."""
-    import pharmada.regkey as regkey
-    import pharmada.overpass as overpass
+    import pharmada.data.regkey as regkey
+    import pharmada.data.overpass as overpass
 
     # Test a valid regkey
     regkey = "09663"  # Kreisfreie Stadt Würzburg
