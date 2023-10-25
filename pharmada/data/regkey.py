@@ -151,15 +151,13 @@ def get_regkey_list(drop_population: bool = True) -> pd.DataFrame:
     It contains the 5-digit RegKeys for all German counties and county-level cities.
 
     Parameters:
-        file (str): The path to the file containing the RegKeys.
         drop_population (bool): Whether to drop the 'population' column from the DataFrame.
 
     Returns:
         regkey_list (pd.DataFrame): A DataFrame containing the RegKeys.
 
     Raises:
-        TypeError: If the file path is not a string.
-        FileNotFoundError: If the file does not exist.
+        None
     """
 
     # Read the list of RegKeys from the file
