@@ -51,50 +51,6 @@ class Data:
         self._Pharmacies = ph.Pharmacies(self.AreaGeometry)
         self._Customers = cu.Customers(self.AreaGeometry)
 
-    def reset(
-        self,
-        Pharmacies: bool = False,
-        Customers: bool = False,
-        AreaGeometry: bool = False,
-    ) -> None:
-        """Reset the Pharmacies and Customers objects.
-
-            If no arguments are passed, everything is reset.
-            If only one argument is passed, only that object is reset.
-        Args:
-            Pharmacies: Reset the Pharmacies object.
-            Customers:  Reset the Customers object.
-        Returns:
-            None
-
-        Raises:
-            None
-        """
-
-        if not isinstance(Pharmacies, bool):
-            raise TypeError("Pharmacies must be a boolean.")
-
-        if not isinstance(Customers, bool):
-            raise TypeError("Customers must be a boolean.")
-
-        if not isinstance(AreaGeometry, bool):
-            raise TypeError("AreaGeometry must be a boolean.")
-
-        # reset everything if no arguments are passed
-        if not (Pharmacies or Customers or AreaGeometry):
-            Pharmacies = True
-            Customers = True
-            AreaGeometry = True
-
-        if Pharmacies:
-            self._Pharmacies.reset()
-
-        if Customers:
-            self._Customers.reset()
-
-        if AreaGeometry:
-            self._AreaGeometry.reset()
-
     def plot(self) -> fl.Map:
         """Plot the area geometry, pharmacies and customers.
 
@@ -185,13 +141,13 @@ class Data:
 
     def __str__(self) -> str:
         """Return information about the Data object."""
-        return f"Pharmada Model data for {self.RegKey}"
+        return f"Pharmada data model for {self.RegKey}"
 
     def __repr__(self) -> str:
         """Return all information about the Data object."""
-        data_description = f"Pharmada model data for {self.RegKey}."
-        ph_description = f"Pharmacies in area: {len(self.Pharmacies.pharmacies)}."
-        cu_description = f"Customers in area:  {len(self.Customers.customers)}."
+        data_description = f"Pharmada data model for {self.RegKey}"
+        ph_description = f"Pharmacies in area: {len(self.Pharmacies.pharmacies)}"
+        cu_description = f"Customers in area:  {len(self.Customers.customers)}"
         return f"{data_description}\n{ph_description}\n{cu_description}"
 
     @property

@@ -52,21 +52,6 @@ class Pharmacies:
         self._AreaGeometry = AreaGeometry
         self._pharmacies = fetch_pharmacies(AreaGeometry)
 
-    def reset(self) -> None:
-        """Reset the pharmacies GeoDataFrame.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Raises:
-            None
-        """
-
-        self._pharmacies = fetch_pharmacies(self.AreaGeometry)
-
     def __str__(self) -> str:
         """Return information about the Pharmacies object."""
         return f"Pharmacies in {self.AreaGeometry.RegKey}"
@@ -116,30 +101,6 @@ class Pharmacies:
         raise AttributeError(
             "Pharmacies.pharmacies must not be deleted, change AreaGeometry instead."
         )
-
-
-def calculate_area_radius(AreaGeometry: geo.AreaGeometry) -> int:
-    """Calculate area radius from boundaries.
-
-    Parameters:
-        AreaGeometry:   AreaGeometry object for the area.
-
-    Returns:
-        area_radius:    The radius of the area in meters.
-
-    Raises:
-        None
-    """
-
-    # get area geometry
-    area_geom = AreaGeometry.geometry
-
-    area_geom = area_geom.to_crs(area_geom.estimate_utm_crs())
-
-    area_radius = area_geom.minimum_bounding_radius()
-
-    return round(area_radius[0], 0)
-
 
 def fetch_pharmacies(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
     """Get pharmacies within area from Overpass API.

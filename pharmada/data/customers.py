@@ -12,7 +12,6 @@
     Functions:
         generate_customers: Generate randomized but realistic daily customers for a given area.
         get_demand: Calculate daily pharmaceutical demand for a given area.
-        sample_customer_locations: Sample random but realistic customer locations for a given area.
         
     Constants:
         POPULATION: The total population of Germany.
@@ -65,21 +64,6 @@ class Customers:
             raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
 
         self._AreaGeometry = AreaGeometry
-        self._customers = generate_customers(self.AreaGeometry)
-
-    def reset(self) -> None:
-        """Reset the customers GeoDataFrame.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Raises:
-            None
-        """
-
         self._customers = generate_customers(self.AreaGeometry)
 
     def __str__(self) -> str:
@@ -150,59 +134,11 @@ def generate_customers(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
         None
     """
 
-    # Generate random addresses within the area
-    customers = sample_customer_locations(AreaGeometry)
-
-    # add metadata to the GeoSeries
-    customers["regkey"] = AreaGeometry.RegKey.regkey
-    customers["name"] = AreaGeometry.RegKey.name
-
-    return customers
-
-
-def get_demand(AreaGeometry: geo.AreaGeometry) -> int:
-    """Calculate daily pharmaceutical demand for a given area.
-
-    Parameters:
-        AreaGeometry (geo.AreaGeometry): The area to calculate demand for.
-
-    Returns:
-        int: The daily pharmaceutical demand for the given area.
-
-    Raises:
-        None
-    """
-
-    # Get the area's population
-    area_pop = AreaGeometry.RegKey.population
-
-    # Yearly demand: Population in area * (overall yearly volume / total population)
-    yearly_demand = area_pop * (UNIT_VOLUME / POPULATION)
-
-    # Return daily demand rounded to the nearest integer
-    daily_demand = round(yearly_demand / 365)
-
-    return math.trunc(daily_demand)
-
-
-def sample_customer_locations(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
-    """Sample random but realistic customer locations for a given area.
-
-    Parameters:
-        AreaGeometry (geo.AreaGeometry): The area to generate addresses for.
-
-    Returns:
-        gpd.GeoDataFrame: A GeoDataFrame containing the sampled customer locations.
-
-    Raises:
-        None
-    """
-
     # suppress FutureWarnings due to an upcoming change in GeoPandas
     # (which will also necessitate a change in the code)
     import warnings
-
     warnings.filterwarnings("ignore", category=FutureWarning)
+
 
     precise_geom = AreaGeometry.precise_geometry
     pop_cells = AreaGeometry.pop_cells
@@ -273,3 +209,28 @@ def sample_customer_locations(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFram
     customers = gpd.GeoDataFrame(geometry=customers)
 
     return customers
+
+
+def get_demand(AreaGeometry: geo.AreaGeometry) -> int:
+    """Calculate daily pharmaceutical demand for a given area.
+
+    Parameters:
+        AreaGeometry (geo.AreaGeometry): The area to calculate demand for.
+
+    Returns:
+        int: The daily pharmaceutical demand for the given area.
+
+    Raises:
+        None
+    """
+
+    # Get the area's population
+    area_pop = AreaGeometry.RegKey.population
+
+    # Yearly demand: Population in area * (overall yearly volume / total population)
+    yearly_demand = area_pop * (UNIT_VOLUME / POPULATION)
+
+    # Return daily demand rounded to the nearest integer
+    daily_demand = round(yearly_demand / 365)
+
+    return math.trunc(daily_demand)

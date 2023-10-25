@@ -52,49 +52,6 @@ class AreaGeometry:
         self._precise_geometry = _get_precise_geometry(self.geometry, self.osm_id)
         self._pop_cells = _get_pop_cells(self.geometry)
 
-    def reset(self) -> None:
-        """Reset the geometry GeoDataFrames.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Raises:
-            None
-        """
-
-        self._geometry = _get_area_geometry(self.RegKey, self.osm_id)
-        self._precise_geometry = _get_precise_geometry(self.geometry, self.osm_id)
-
-    def united_precise_geometry(self) -> gpd.GeoDataFrame:
-        """Unite all geometries in a GeoDataFrame to a single geometry.
-
-        This step is necessary before using the geometry for customer generation.
-
-        Parameters:
-            None
-
-        Returns:
-            unary_geom (gpd.GeoDataFrame):  A GeoDataFrame containing a single geometry.
-
-        Raises:
-            None
-        """
-
-        # Unite the geometry to a single polygon
-        unary_geom = gpd.GeoDataFrame(
-            geometry=[self.precise_geometry.unary_union], crs="EPSG:4326"
-        )
-
-        # Add metadata to the GeoDataFrame
-        unary_geom["regkey"] = self.regkey
-        unary_geom["name"] = self.name
-        unary_geom["osm_id"] = self.osm_id
-
-        return unary_geom
-
     def __str__(self) -> str:
         """Returns information about the AreaGeometry object."""
         return f"AreaGeometry for {self.RegKey}"
