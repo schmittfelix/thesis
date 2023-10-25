@@ -141,13 +141,13 @@ class Data:
 
     def __str__(self) -> str:
         """Return information about the Data object."""
-        return f"Pharmada Model data for {self.RegKey}"
+        return f"Pharmada data model for {self.RegKey}"
 
     def __repr__(self) -> str:
         """Return all information about the Data object."""
-        data_description = f"Pharmada model data for {self.RegKey}."
-        ph_description = f"Pharmacies in area: {len(self.Pharmacies.pharmacies)}."
-        cu_description = f"Customers in area:  {len(self.Customers.customers)}."
+        data_description = f"Pharmada data model for {self.RegKey}"
+        ph_description = f"Pharmacies in area: {len(self.Pharmacies.pharmacies)}"
+        cu_description = f"Customers in area:  {len(self.Customers.customers)}"
         return f"{data_description}\n{ph_description}\n{cu_description}"
 
     @property
