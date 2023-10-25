@@ -66,21 +66,6 @@ class Customers:
         self._AreaGeometry = AreaGeometry
         self._customers = generate_customers(self.AreaGeometry)
 
-    def reset(self) -> None:
-        """Reset the customers GeoDataFrame.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Raises:
-            None
-        """
-
-        self._customers = generate_customers(self.AreaGeometry)
-
     def __str__(self) -> str:
         """Return information about the Customers object."""
 

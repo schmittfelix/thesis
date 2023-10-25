@@ -33,8 +33,7 @@ class RegKey:
         __init__: Initialize a RegKey object.
         __str__: Return information about the RegKey object.
         __repr__: Return all information about the RegKey object.
-        __eq__: Check if two RegKey objects are equal.
-        __hash__: Return the hash of the RegKey object.
+        to_dict: Return a dictionary representation of the RegKey object.
     """
 
     __slots__ = ("_regkey", "_name", "_population")
@@ -67,14 +66,6 @@ class RegKey:
     def __repr__(self) -> str:
         """Return all information about the RegKey object."""
         return f"RegKey object for {self.name} ({self.regkey}). Population: {self.population}"
-
-    def __eq__(self, other) -> bool:
-        """Check if two RegKey objects are equal."""
-        return self.regkey == other.regkey
-
-    def __hash__(self) -> int:
-        """Return the hash of the RegKey object."""
-        return hash(self.regkey)
 
     def to_dict(self) -> dict:
         """Return a dictionary representation of the RegKey object."""
