@@ -1,0 +1,24 @@
+﻿Basis: Wege (Deutschland);;;;;;;;;;
+Spalten % (gewichtet);Total;Wegelänge [km] in Gruppen;;;;;;;;
+; ;unter 0,5 km;0,5 bis unter 1 km;1 bis unter 2 km;2 bis unter 5 km;5 bis unter 10 km;10 bis unter 20 km;20 bis unter 50 km;50 bis unter 100 km;100 km und mehr
+;;;;;;;;;;
+Basis ungewichtet;960.619;88.166;103.547;132.383;224.594;160.239;124.851;86.307;23.339;17.193
+Basis gewichtet;960.619;93.899;108.984;132.484;222.677;155.638;123.305;85.524;22.769;15.338
+Hauptverkehrsmittel (differenziert);;;;;;;;;;
+zu Fuß;20 %;76 %;48 %;27 %;13 %;4 %;1 %;1 %;0 %;-
+Fahrrad;10 %;9 %;17 %;19 %;13 %;7 %;3 %;2 %;2 %;0 %
+Motorrad/Moped/Mofa;1 %;0 %;0 %;0 %;1 %;1 %;1 %;0 %;1 %;1 %
+Pkw (Mitfahrer);13 %;3 %;7 %;11 %;14 %;16 %;17 %;17 %;20 %;25 %
+Pkw (Fahrer);38 %;9 %;21 %;31 %;40 %;48 %;55 %;57 %;50 %;43 %
+Lkw;1 %;0 %;0 %;1 %;1 %;1 %;2 %;3 %;3 %;4 %
+ÖPNV;8 %;1 %;2 %;4 %;9 %;14 %;13 %;13 %;13 %;2 %
+Taxi;0 %;0 %;0 %;0 %;0 %;0 %;0 %;0 %;0 %;0 %
+ÖPFV;1 %;0 %;0 %;0 %;0 %;0 %;0 %;1 %;4 %;18 %
+anderes;0 %;0 %;1 %;1 %;0 %;0 %;0 %;1 %;1 %;1 %
+keine Angabe;6 %;2 %;3 %;7 %;8 %;8 %;7 %;6 %;5 %;5 %
+ ;;;;;;;;;;
+Total;100 %;100 %;100 %;100 %;100 %;100 %;100 %;100 %;100 %;100 %
+"Spalten: einschließlich regelmäßiger beruflicher Wege, inklusive imputierter Werte
+Zeilen: alle Fälle";;;;;;;;;;
+;;;;;;;;;;
+Mobilität in Tabellen 2017;;;;;;;;;;
