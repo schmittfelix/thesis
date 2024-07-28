@@ -18,6 +18,7 @@ Functions:
 
 import importlib.resources as res
 import zipfile as zip
+from matplotlib.pylab import f
 import pandas as pd
 from typing import Union
 
@@ -153,27 +154,27 @@ def get_regkey_list(drop_population: bool = True) -> pd.DataFrame:
     """
 
     # Read the list of RegKeys from the file
-    path = res.files(__package__).joinpath("files.zip")
+    path = res.files(__package__).joinpath("zensus2022-files.zip")
 
     with res.as_file(path) as zipfile:
         with zip.ZipFile(zipfile, mode="r") as archive:
-            with archive.open("files/regkey_data.csv") as csvfile:
+            with archive.open(
+                "zensus2022-files/Zensus2022_Bevoelkerungszahl_regkey.csv"
+            ) as csvfile:
                 regkey_list = pd.read_csv(
                     csvfile,
                     sep=";",
-                    encoding="utf-8",
-                    header=0,
                     index_col=0,
-                    engine="python",
-                    converters={"regional_key": str},
+                    dtype={
+                        "regkey": "str",  # String because of leading zeros
+                        "name": "str",
+                        "count": "int64",
+                    },
                 )
 
     # If not negated, drop the unnecessary 'population' column containing population data
     if drop_population:
         regkey_list.drop(columns=["population"])
-
-    # drop rows where the index value is not a valid RegKey
-    regkey_list = regkey_list[regkey_list.index.str.len() == 5]
 
     return regkey_list
 
@@ -199,6 +200,10 @@ def validate_regkey(regkey: str) -> bool:
     if not isinstance(regkey, str):
         raise TypeError("RegKey must be a string.")
 
+    # Edge case: DG (Deutschland Gesamt) is a valid RegKey
+    if regkey == "DG":
+        return True
+
     # If the regkey contains characters other than digits, try to resolve as a RegKey name.
     if not regkey.isdigit():
         try:
@@ -206,24 +211,21 @@ def validate_regkey(regkey: str) -> bool:
         except ValueError as error:
             raise error
 
-    # Check if the RegKey is shorter than 5 digits and therefore invalid
-    if len(regkey) < 5:
-        raise ValueError("RegKey must be at least 5 digits long.")
-
-    # If the RegKey is longer than 5 digits, convert it to a short RegKey
-    if len(regkey) > 5:
-        regkey = regkey[:5]
+    # Check if the RegKey is either 2, 5 or 12 digits long
+    if not len(regkey) in [2, 5, 12]:
+        raise ValueError("RegKey must be either 2, 5 or 12 digits long.")
 
     # Check if the first two digits are within the valid range of 01-16.
     # The first two digits of a RegKey identify the Bundesland.
     if not 1 <= int(regkey[:2]) <= 16:
         raise ValueError("First two digits of the RegKey must be between 01 and 16.")
 
-    # Although possible, it is impractical to check digits 3-5 due to the large number of plausible values needed for some large Bundesländer.
-
     # Check if the RegKey is valid by looking it up in the list of RegKeys
     # Get the list of RegKeys
     regkey_list = get_regkey_list()
+
+    # Prepare the RegKey for lookup by adding trailing zeros to keys shorter than 12 digits
+    regkey = f"{regkey:0<12}"
 
     # Check if the RegKey is in the list
     if regkey in regkey_list.index:
@@ -246,15 +248,15 @@ def regkey_to_name(regkey: str) -> str:
     """
 
     # Check if the RegKey is valid
-    validate_regkey(regkey)
+    if validate_regkey(regkey):
 
-    # Get the list of RegKeys
-    regkey_list = get_regkey_list()
+        # Get the list of RegKeys
+        regkey_list = get_regkey_list()
 
-    # Get the name of the area with the given RegKey
-    name = regkey_list.loc[regkey, "name"]
+        # Get the name of the area with the given RegKey
+        name = regkey_list.loc[regkey, "name"]
 
-    return name
+        return name
 
 
 def name_to_regkey(name: str) -> str:
@@ -289,7 +291,9 @@ def name_to_regkey(name: str) -> str:
             name = regkey_list.loc[regkey, "name"]
             output.append(f"{name} ({regkey})")
 
-        raise ValueError(f"Multiple RegKeys found for given name: {', '.join(output)}.")
+        raise ValueError(
+            f"Multiple RegKeys found for given name: {',\n'.join(output)}."
+        )
 
     # if only one regkey is found, return it
     regkey = regkeys[0]
@@ -311,15 +315,15 @@ def regkey_to_population(regkey: str) -> int:
     """
 
     # Check if the RegKey is valid
-    validate_regkey(regkey)
+    if validate_regkey(regkey):
 
-    # Get the list of RegKeys
-    regkey_list = get_regkey_list()
+        # Get the list of RegKeys
+        regkey_list = get_regkey_list()
 
-    # Get the population of the area with the given RegKey
-    population = regkey_list.loc[regkey, "population"]
+        # Get the population of the area with the given RegKey
+        population = regkey_list.loc[regkey, "population"]
 
-    return population
+        return population
 
 
 def infer_regkey(input: Union[RegKey, str]) -> str:
@@ -339,10 +343,10 @@ def infer_regkey(input: Union[RegKey, str]) -> str:
     if isinstance(input, RegKey):
         return input.regkey
 
-    # If the input is a regkey, validate and return it
-    if isinstance(input, str) and input.isdigit():
-        validate_regkey(input)
-        return input
+    # If the input is a regkey, validate and return it as a full 12-digit regkey
+    # by padding with trailing zeros if necessary
+    if isinstance(input, str) and validate_regkey(input):
+        return f"{input:0<12}"
 
     # If the input could be a name, try to convert it to a regkey and return it
     if isinstance(input, str):

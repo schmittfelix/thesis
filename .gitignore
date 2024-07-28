@@ -2,3 +2,4 @@
 __pycache__
 .pytest_cache
 /pharmalink/cache
+/pharmalink/code/zensus2022-files

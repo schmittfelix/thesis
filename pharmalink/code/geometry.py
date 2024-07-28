@@ -330,13 +330,13 @@ def _get_pop_cells(area_geom: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         return n_sw <= y <= n_ne and e_sw <= x <= e_ne
 
     # Load the grid cells and filter them by the area bounds
-    path = res.files(__package__).joinpath("files.zip")
+    path = res.files(__package__).joinpath("zensus2022-files.zip")
 
     # Read the grid cells from the csv file in the zip archive
     with res.as_file(path) as zipfile:
         with zip.ZipFile(zipfile, mode="r") as archive:
             with archive.open(
-                "files/Zensus2022_Bevoelkerungszahl_100m-Gitter.csv"
+                "zensus2022-files/Zensus2022_Bevoelkerungszahl_100m-Gitter.csv"
             ) as csvfile:
                 cells = pd.read_csv(
                     csvfile,
