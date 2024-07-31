@@ -11,7 +11,7 @@ Functions:
 """
 
 import pharmalink.code.overpass as op
-import pharmalink.code.regkey as rk
+import pharmalink.code.area as area
 import geopandas as gpd
 import importlib.resources as res
 import zipfile as zip
@@ -37,11 +37,11 @@ class AreaGeometry:
 
     __slots__ = ("_RegKey", "_osm_id", "_geometry", "_precise_geometry", "_pop_cells")
 
-    def __init__(self, RegKey: rk.RegKey) -> None:
+    def __init__(self, RegKey: area.Area) -> None:
         """Initialize AreaGeometry object."""
 
         # check if RegKey is valid
-        if not isinstance(RegKey, rk.RegKey):
+        if not isinstance(RegKey, area.Area):
             raise TypeError("RegKey must be of type RegKey.")
 
         self._RegKey = RegKey
@@ -63,16 +63,16 @@ class AreaGeometry:
         return "".join(description, geoms_description)
 
     @property
-    def RegKey(self) -> rk.RegKey:
+    def RegKey(self) -> area.Area:
         """RegKey object defining the area for AreaGeometry."""
         return self._RegKey
 
     @RegKey.setter
-    def RegKey(self, RegKey: rk.RegKey) -> None:
+    def RegKey(self, RegKey: area.Area) -> None:
         """Set RegKey object which defines AreaGeometry."""
 
         # check if RegKey is valid
-        if not isinstance(RegKey, rk.RegKey):
+        if not isinstance(RegKey, area.Area):
             raise TypeError("RegKey must be of type RegKey.")
 
         self._RegKey = RegKey
@@ -166,7 +166,7 @@ class AreaGeometry:
         )
 
 
-def _get_area_geometry(RegKey: rk.RegKey, osm_id: int) -> gpd.GeoDataFrame:
+def _get_area_geometry(RegKey: area.Area, osm_id: int) -> gpd.GeoDataFrame:
     """Get geometry for given RegKey.
 
     Parameters:

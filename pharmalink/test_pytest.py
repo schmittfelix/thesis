@@ -1,7 +1,7 @@
 """Module to test the pharmalink package using pytest."""
 
 import pharmalink.code.overpass as overpass
-import pharmalink.code.regkey as regkey
+import pharmalink.code.area as area
 import pharmalink.code.geometry as geometry
 import pharmalink.code.customers as customers
 import pharmalink.code.pharmacies as pharmacies
@@ -33,19 +33,19 @@ def test_query_overpass():
 
 def test_regkey_to_osm_id():
     """Test the get_relation_id function."""
-    import pharmalink.code.regkey as regkey
+    import pharmalink.code.area as area
     import pharmalink.code.overpass as overpass
 
     # Test a valid regkey
-    regkey = "09663"  # Kreisfreie Stadt Würzburg
-    RegKey = regkey.RegKey(regkey)
+    area = "09663"  # Kreisfreie Stadt Würzburg
+    RegKey = area.RegKey(area)
 
     osm_id = overpass.regkey_to_osm_id(RegKey)
     assert osm_id == 51477
 
     # Test an invalid regkey
-    regkey = ""
-    osm_id = overpass.regkey_to_osm_id(regkey)
+    area = ""
+    osm_id = overpass.regkey_to_osm_id(area)
     assert osm_id == None
 
 

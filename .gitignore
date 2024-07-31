@@ -1,5 +1,5 @@
 .DS_Store
 __pycache__
 .pytest_cache
-/pharmalink/cache
+/pharmalink/code/cache
 /pharmalink/code/zensus2022-files

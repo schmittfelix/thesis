@@ -4,7 +4,7 @@ Classes:
     Data: Class for data sourcing, storing and presentation for the pharmalink VRP model.
 """
 
-import pharmalink.code.regkey as rk
+import pharmalink.code.area as area
 import pharmalink.code.geometry as geo
 import pharmalink.code.pharmacies as ph
 import pharmalink.code.customers as cu
@@ -46,7 +46,7 @@ class Data:
             None
         """
 
-        self._RegKey = rk.RegKey(area)
+        self._RegKey = area.Area(area)
         self._AreaGeometry = geo.AreaGeometry(self.RegKey)
         self._Pharmacies = ph.Pharmacies(self.AreaGeometry)
         self._Customers = cu.Customers(self.AreaGeometry)
@@ -151,7 +151,7 @@ class Data:
         return f"{data_description}\n{ph_description}\n{cu_description}"
 
     @property
-    def RegKey(self) -> rk.RegKey:
+    def RegKey(self) -> area.Area:
         """RegKey object defining the area."""
         return self._RegKey
 
@@ -163,7 +163,7 @@ class Data:
         if not isinstance(area, str):
             raise TypeError("area must be a string.")
 
-        self._RegKey = rk.RegKey(area)
+        self._RegKey = area.Area(area)
         self._AreaGeometry = geo.AreaGeometry(self.RegKey)
         self._Pharmacies = ph.Pharmacies(self.AreaGeometry)
         self._Customers = cu.Customers(self.AreaGeometry)

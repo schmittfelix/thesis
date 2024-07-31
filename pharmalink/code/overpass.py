@@ -10,7 +10,7 @@ Functions:
     get_precise_geometry: Get precise possible customer sub-areas for a total area.
 """
 
-from pharmalink.code.regkey import RegKey
+from pharmalink.code.area import Area
 import requests as req
 import osm2geojson as o2g
 
@@ -34,7 +34,7 @@ def query_overpass(query: str) -> dict:
     return response
 
 
-def regkey_to_osm_id(RegKey: RegKey) -> int:
+def regkey_to_osm_id(RegKey: Area) -> int:
     """Resolve a German "Regionalschlüssel" to an OSM relation ID.
 
     Parameters:
@@ -81,7 +81,7 @@ def regkey_to_osm_id(RegKey: RegKey) -> int:
     if len(response["elements"]) > 1:
         raise ValueError("Multiple results for regional key.")
 
-    # we can safely access the first element at this point
+    # It's safe to access the first element at this point
     result = response["elements"][0]
 
     # If the result is not a relation, raise an error
