@@ -50,7 +50,7 @@ class Area:
         regkey = infer_regkey(identifier)
 
         # get the data for the specified area
-        area_data = get_area_data(regkey)
+        area_data = get_area(regkey)
 
         # set the regkey, name, population and level attributes
         self._regkey = regkey
@@ -85,7 +85,7 @@ class Area:
         self._regkey = new_regkey
 
         # get the list of regkeys and the entry for the given regkey
-        area_data = get_area_data()
+        area_data = get_area()
         entry = area_data.loc[new_regkey]
 
         # set the name, population and level attributes
@@ -197,7 +197,7 @@ def get_regkey_list() -> list:
     return list(regkey_list["regkey"])
 
 
-def get_area_data(regkey: str) -> pd.DataFrame:
+def get_area(regkey: str) -> pd.Series:
     """Read the list of Areas and their data from a dedicated file.
 
     Data source is an aggregated list of all German administrative areas based on
@@ -235,17 +235,56 @@ def get_area_data(regkey: str) -> pd.DataFrame:
 
     area_data = all_data.loc[regkey]
 
-    # Check if multiple areas are found for the given regkey
-    if len(area_data) > 1:
+    # Check if area_data is a DataFrame (= multiple entries for the regkey)
+    if type(area_data) == pd.DataFrame:
         # Sort entries by level value in the order of "bundesland", "kreis", "gemeinde"
         area_data = area_data.sort_values(
             "level", key=lambda x: x.map({"bundesland": 1, "kreis": 2, "gemeinde": 3})
         )
 
-        # Return the entry with the highest level value
+        # Return the entry with the highest level value as a Series
         area_data = area_data.iloc[0]
 
     return area_data
+
+
+def get_all_areas() -> pd.DataFrame:
+    """Read the list of Areas from a dedicated file.
+
+    Data source is an aggregated list of all German administrative areas based on
+    Zensus 2022 data. For more information, see: Quellen/bevoelkerung.
+
+    Parameters:
+        None
+
+    Returns:
+        areas (pd.DataFrame): A DataFrame containing the Areas.
+
+    Raises:
+        None
+    """
+
+    # Read the list of Areas from the file
+    path = res.files(__package__).joinpath("zensus2022-files.zip")
+
+    with res.as_file(path) as zipfile:
+        with zip.ZipFile(zipfile, mode="r") as archive:
+            with archive.open(
+                "zensus2022-files/Zensus2022_Bevoelkerungszahl_regkey.csv"
+            ) as csvfile:
+                areas = pd.read_csv(
+                    csvfile,
+                    sep=";",
+                    index_col=0,
+                    dtype={
+                        "regkey": "str",  # String because of leading zeros
+                        "name": "str",
+                        "population": "int64",
+                        "level": "str",
+                    },
+                )
+
+    return areas
 
 
 def infer_regkey(input: Union[Area, str]) -> str:
@@ -300,7 +339,7 @@ def validate_regkey(regkey: str) -> bool:
         raise TypeError("RegKey must be a string.")
 
     # Edge case: DG (Deutschland Gesamt) is a valid RegKey
-    if regkey == "DG":
+    if regkey in ["DG", "DG0000000000"]:
         return True
 
     # If the regkey contains characters other than digits, try to resolve as a RegKey name.
@@ -375,7 +414,7 @@ def name_to_regkey(name: str) -> str:
     return regkey
 
 
-def regkey_to_bundesland(regkey: Area) -> Area:
+def area_to_bundesland(area: Area) -> Area:
     """Get the Bundesland (state) of an administrative area from its RegKey.
 
     Parameters:
@@ -389,7 +428,7 @@ def regkey_to_bundesland(regkey: Area) -> Area:
     """
 
     # Form the RegKey for the Bundesland from the first two digits of the input RegKey
-    bl_regkey = f"{regkey.regkey[:2]}0000000000"
+    bl_regkey = f"{area.regkey[:2]}0000000000"
     # Create a RegKey object for the Bundesland
     bundesland = Area(bl_regkey)
 

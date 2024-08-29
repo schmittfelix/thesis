@@ -19,7 +19,7 @@ class Data:
         area:   The area to source data for.
 
     Attributes:
-        RegKey:         RegKey object for the area.
+        Area:           Area object defining the region to work with.
         AreaGeometry:   AreaGeometry object for the area.
         Pharmacies:     PharmaciesInArea object for the area.
         Customers:      Customers object for the area.
@@ -29,13 +29,13 @@ class Data:
         __repr__:  Return all information about the Data object.
     """
 
-    __slots__ = ["_RegKey", "_AreaGeometry", "_Pharmacies", "_Customers"]
+    __slots__ = ["_area", "_area_geometry", "_pharmacies", "_customers"]
 
-    def __init__(self, area: str) -> None:
+    def __init__(self, identifier: str) -> None:
         """Initialise the Data class.
 
         Args:
-            area: The area to source data for.
+            area: The identifier for the area to source data for.
                   Can either be a valid german regional key
                   or a valid county/county-level city name.
 
@@ -46,10 +46,10 @@ class Data:
             None
         """
 
-        self._RegKey = area.Area(area)
-        self._AreaGeometry = geo.AreaGeometry(self.RegKey)
-        self._Pharmacies = ph.Pharmacies(self.AreaGeometry)
-        self._Customers = cu.Customers(self.AreaGeometry)
+        self._area = area.Area(identifier)
+        self._area_geometry = geo.AreaGeometry(self.area)
+        self._pharmacies = ph.Pharmacies(self.AreaGeometry)
+        self._customers = cu.Customers(self.AreaGeometry)
 
     def plot(self) -> fl.Map:
         """Plot the area geometry, pharmacies and customers.
@@ -141,91 +141,89 @@ class Data:
 
     def __str__(self) -> str:
         """Return information about the Data object."""
-        return f"pharmalink data model for {self.RegKey}"
+        return f"pharmalink data model for {self.area}"
 
     def __repr__(self) -> str:
         """Return all information about the Data object."""
-        data_description = f"pharmalink data model for {self.RegKey}"
+        data_description = f"pharmalink data model for {self.area}"
         ph_description = f"Pharmacies in area: {len(self.Pharmacies.pharmacies)}"
         cu_description = f"Customers in area:  {len(self.Customers.customers)}"
         return f"{data_description}\n{ph_description}\n{cu_description}"
 
     @property
-    def RegKey(self) -> area.Area:
-        """RegKey object defining the area."""
-        return self._RegKey
+    def area(self) -> area.Area:
+        """Area object defining the region to work with."""
+        return self._area
 
-    @RegKey.setter
-    def RegKey(self, area: str) -> None:
-        """Set RegKey object to define the model area."""
+    @area.setter
+    def area(self, identifier: str) -> None:
+        """Set the area for the Data object."""
 
         # check if area is valid
         if not isinstance(area, str):
             raise TypeError("area must be a string.")
 
-        self._RegKey = area.Area(area)
-        self._AreaGeometry = geo.AreaGeometry(self.RegKey)
-        self._Pharmacies = ph.Pharmacies(self.AreaGeometry)
-        self._Customers = cu.Customers(self.AreaGeometry)
+        self._area = area.Area(identifier)
+        self._area_geometry = geo.AreaGeometry(self.area)
+        self._pharmacies = ph.Pharmacies(self.AreaGeometry)
+        self._customers = cu.Customers(self.AreaGeometry)
 
-    @RegKey.deleter
-    def RegKey(self) -> None:
-        """Protect RegKey from being deleted and warn user."""
-        raise AttributeError("Data.RegKey must not be deleted, change it instead.")
+    @area.deleter
+    def area(self) -> None:
+        """Protect Area from being deleted and warn user."""
+        raise AttributeError("data.area must not be deleted, change it instead.")
 
     @property
     def AreaGeometry(self) -> geo.AreaGeometry:
         """AreaGeometry object defining the area."""
-        return self._AreaGeometry
+        return self._area_geometry
 
     @AreaGeometry.setter
     def AreaGeometry(self, value) -> None:
         """Protect AreaGeometry from being set and warn user."""
         raise AttributeError(
-            f'Data.AreaGeometry cannot be changed to "{value}", change RegKey instead.'
+            f'Data.AreaGeometry cannot be changed to "{value}", change area instead.'
         )
 
     @AreaGeometry.deleter
     def AreaGeometry(self) -> None:
         """Protect AreaGeometry from being deleted and warn user."""
         raise AttributeError(
-            "Data.AreaGeometry must not be deleted, change RegKey instead."
+            "Data.AreaGeometry must not be deleted, change area instead."
         )
 
     @property
     def Pharmacies(self) -> ph.Pharmacies:
         """Pharmacies within the area."""
-        return self._Pharmacies
+        return self._pharmacies
 
     @Pharmacies.setter
     def Pharmacies(self, value) -> None:
         """Protect Pharmacies from being set and warn user."""
         raise AttributeError(
-            f'Data.Pharmacies cannot be changed to "{value}", change RegKey instead.'
+            f'Data.Pharmacies cannot be changed to "{value}", change area instead.'
         )
 
     @Pharmacies.deleter
     def Pharmacies(self) -> None:
         """Protect Pharmacies from being deleted and warn user."""
         raise AttributeError(
-            "Data.Pharmacies must not be deleted, change RegKey instead."
+            "Data.Pharmacies must not be deleted, change area instead."
         )
 
     @property
     def Customers(self) -> cu.Customers:
         """Customers within the area."""
-        return self._Customers
+        return self._customers
 
     @Customers.setter
     def Customers(self, value) -> None:
         """Protect Customers from being set and warn user."""
         raise AttributeError(
-            f'Data.Customers cannot be changed to "{value}", change RegKey instead.'
+            f'Data.Customers cannot be changed to "{value}", change area instead.'
         )
 
     @Customers.deleter
     def Customers(self) -> None:
         """Protect Customers from being deleted and warn user."""
-        raise AttributeError(
-            "Data.Customers must not be deleted, change RegKey instead."
-        )
+        raise AttributeError("Data.Customers must not be deleted, change area instead.")

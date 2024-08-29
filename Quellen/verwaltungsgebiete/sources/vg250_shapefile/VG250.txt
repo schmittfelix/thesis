@@ -1,0 +1,21 @@
+VG250 - Stand 15.05.2022
+========================
+
+
+Steckbrief
+==========
+Verwaltungsgebiete 1 : 250 000
+VG250
+
+Stand: 15.05.2022
+Format: SHAPE
+
+Georeferenzierung:
+
+EPSG 25832
+UTM-Zone 32
+ETRS 1989
+Mittelmeridian: 9° öL
+
+
+Es gilt die die beiliegende Dokumentation der VG250 mit Stand 31.12.2021 entsprechend.
