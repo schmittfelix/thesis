@@ -2,5 +2,5 @@
 __pycache__
 .pytest_cache
 /pharmalink/code/cache
-/pharmalink/code/zensus2022-files
-/Quellen/alkis/Nutzung_kreis.gpkg
+pharmalink/sources/population_grid/Zensus2022_Bevoelkerungszahl/Zensus2022_Bevoelkerungszahl_100m-Gitter.csv
+*.gpkg
