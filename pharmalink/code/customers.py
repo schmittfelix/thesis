@@ -76,50 +76,6 @@ class Customers:
 
         return f"Customers in {self.AreaGeometry.RegKey}.\n{self.customers.info()}"
 
-    @property
-    def AreaGeometry(self) -> geo.AreaGeometry:
-        """AreaGeometry object defining the area to generate customers for."""
-        return self._AreaGeometry
-
-    @AreaGeometry.setter
-    def AreaGeometry(self, AreaGeometry: geo.AreaGeometry) -> None:
-        """Set the area to generate customers for."""
-
-        # check if AreaGeometry is valid
-        if not isinstance(AreaGeometry, geo.AreaGeometry):
-            raise TypeError("AreaGeometry must be an instance of AreaGeometry.")
-
-        self._AreaGeometry = AreaGeometry
-
-        # update customers GeoSeries when RegKey is changed
-        self._customers = generate_customers(self.AreaGeometry)
-
-    @AreaGeometry.deleter
-    def AreaGeometry(self) -> None:
-        """Protect AreaGeometry object from being deleted and warn user."""
-        raise AttributeError(
-            "Customers.AreaGeometry must not be deleted, change it instead."
-        )
-
-    @property
-    def customers(self) -> gpd.GeoSeries:
-        """Customers within the area."""
-        return self._customers
-
-    @customers.setter
-    def customers(self, value) -> None:
-        """Protect customers from being set and warn user."""
-        raise AttributeError(
-            f'Customers.customers cannot be changed to "{value}", change AreaGeometry instead.'
-        )
-
-    @customers.deleter
-    def customers(self) -> None:
-        """Protect customers from being deleted and warn user."""
-        raise AttributeError(
-            "Customers.customers must not be deleted, change AreaGeometry instead."
-        )
-
 
 def generate_customers(AreaGeometry: geo.AreaGeometry) -> gpd.GeoDataFrame:
     """Generate randomized but realistic daily customers for a given area.
