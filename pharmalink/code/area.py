@@ -13,13 +13,9 @@ Functions:
     
 """
 
-import importlib.resources as res
-import lzma
-import warnings
-import pyogrio as pgr
-import geopandas as gpd
-import pandas as pd
-from typing import Union
+from pharmalink.code.sources import AdminAreas
+import folium as fl
+from statistics import mean
 
 
 class Area:
@@ -40,6 +36,7 @@ class Area:
     __slots__ = (
         "regkey",
         "level",
+        "bundesland",
         "full_name",
         "geo_name",
         "title",
@@ -61,25 +58,81 @@ class Area:
         """
 
         # infer a regkey from the given identifier
-        regkey = self.infer_regkey(identifier)
+        regkey = self._infer_regkey(identifier)
 
         # get the data for the specified area
-        area = get_area(regkey)
+        area = AdminAreas.get_area(regkey)
 
         # set the regkey, name, population and level attributes
         self.regkey = regkey
-        self.level = area.level
-        self.full_name = area.full_name
-        self.geo_name = area.geo_name
-        self.title = area.title
-        self.geometry = area.geometry
-        self.population = area.population
+        self.level = area["level"].values[0]
+        self.bundesland = self._regkey_to_bundesland()
+        self.full_name = area["full_name"].values[0]
+        self.geo_name = area["geo_name"].values[0]
+        self.title = area["title"].values[0]
+        self.population = area["population"].values[0]
+        self.geometry = area.filter(["regkey", "full_name", "geometry"])
 
     def __str__(self) -> str:
         """Return information about the Area object."""
         return f"{self.full_name} ({self.regkey})"
 
-    def infer_regkey(self, input: str) -> str:
+    def plot(self, **kwargs) -> fl.Map:
+        """Plot the area geometry.
+
+        Args:
+            **kwargs: Keyword arguments passed to the plot functions.
+
+        Returns:
+            None
+
+        Raises:
+            None
+        """
+
+        geometry = self.geometry
+
+        # Set CRS to EPSG:4326 for folium
+        geometry = geometry.to_crs(epsg=4326)
+
+        # Setup of the map's bounds
+        bounds = geometry.total_bounds
+        x = mean([bounds[0], bounds[2]])
+        y = mean([bounds[1], bounds[3]])
+        viewport_center = (y, x)
+
+        # Setup of the map
+        map_args = {
+            "location": viewport_center,
+            "width": "100%",
+            "height": "100%",
+            "tiles": "cartodbpositron",
+            "min_zoom": 8,
+            "max_zoom": 18,
+            "control_scale": False,
+            "zoom_control": False,
+        }
+
+        map = fl.Map(**map_args)
+
+        # fit map to bounds for nice display
+        map.fit_bounds([[bounds[1], bounds[0]], [bounds[3], bounds[2]]])
+
+        style_args = {}
+
+        # Setup of the map content
+        area_args = {
+            "data": geometry,
+            "name": self.full_name,
+            "regkey": self.regkey,
+        }
+
+        fl.GeoJson(**area_args, **style_args).add_to(map)
+
+        # Return the map
+        return map
+
+    def _infer_regkey(self, input: str) -> str:
         """Try to infer a valid regkey from input.
 
         Parameters:
@@ -94,17 +147,17 @@ class Area:
 
         # If the input is a regkey, validate and return it as a full 12-digit regkey
         # by padding with trailing zeros if necessary
-        if isinstance(input, str) and self.validate_regkey(input):
+        if isinstance(input, str) and self._validate_regkey(input):
             return f"{input:0<12}"
 
         # If the input could be an area name instead, try to convert it to a regkey
         if isinstance(input, str):
-            return self.name_to_regkey(input)
+            return self._name_to_regkey(input)
 
         # If none of the above apply, raise an error
         raise TypeError("No regkey could be inferred from input.")
 
-    def validate_regkey(regkey: str) -> bool:
+    def _validate_regkey(self, regkey: str) -> bool:
         """Check if a given RegKey is valid.
 
         Parameters:
@@ -124,10 +177,6 @@ class Area:
         if not isinstance(regkey, str):
             raise TypeError("RegKey must be a string.")
 
-        # Edge case: DG (Deutschland Gesamt) is a valid RegKey
-        if regkey in ["DG", "DG0000000000"]:
-            return True
-
         # If the regkey contains characters other than digits, try to resolve as a RegKey name.
         if not regkey.isdigit():
             return False
@@ -138,14 +187,14 @@ class Area:
 
         # Check if the first two digits are within the valid range of 01-16.
         # The first two digits of a RegKey identify the Bundesland.
-        if not int(regkey[:2]) in range(1, 17):
+        if not int(regkey[:2]) in range(0, 17):
             raise ValueError(
-                "First two digits of the RegKey must be between 01 and 16."
+                "First two digits of the RegKey must be between 00 and 16."
             )
 
         # Check if the RegKey is valid by looking it up in the list of RegKeys
         # Get the list of RegKeys
-        regkey_list = get_regkeys()
+        regkey_list = AdminAreas.get_regkeys()
 
         # Prepare the RegKey for lookup by adding trailing zeros to keys shorter than 12 digits
         regkey = f"{regkey:0<12}"
@@ -156,7 +205,7 @@ class Area:
         else:
             raise ValueError("RegKey is not a valid RegKey.")
 
-    def name_to_regkey(name: str) -> str:
+    def _name_to_regkey(self, name: str) -> str:
         """Get the RegKey of an administrative area from its name.
 
         Parameters:
@@ -171,7 +220,7 @@ class Area:
         """
 
         # Get the list of all area names
-        area_names = get_area_names()
+        area_names = AdminAreas.get_area_names()
 
         matches = area_names[area_names.str.contains(name, case=False)]
 
@@ -190,150 +239,35 @@ class Area:
 
         return regkey
 
+    def _regkey_to_bundesland(self) -> str:
+        """Determine the Bundesland of an area from its RegKey."""
 
-def get_regkeys() -> list:
-    """Get a list of all valid German Regionalschlüssel (regkeys).
+        two_digits = f"{self.regkey[:2]}"
 
-    Data source is an aggregated list of all German administrative areas.
-    For more information, see: sources/admin_areas.
+        # Handle the edge case of looking up the Bundesland for the whole country
+        if two_digits == "00":
+            return "Deutschland"
 
-    Parameters:
-        None
+        # Source: admin_areas filtered for bundesland level
+        bundeslaender = {
+            "01": "Schleswig-Holstein",
+            "02": "Hamburg",
+            "03": "Niedersachsen",
+            "04": "Bremen",
+            "05": "Nordrhein-Westfalen",
+            "06": "Hessen",
+            "07": "Rheinland-Pfalz",
+            "08": "Baden-Württemberg",
+            "09": "Bayern",
+            "10": "Saarland",
+            "11": "Berlin",
+            "12": "Brandenburg",
+            "13": "Mecklenburg-Vorpommern",
+            "14": "Sachsen",
+            "15": "Sachsen-Anhalt",
+            "16": "Thüringen",
+        }
 
-    Returns:
-        regkeys (list): A list containing all valid German Regionalschlüssel.
+        bundesland = bundeslaender[two_digits]
 
-    Raises:
-        None
-    """
-
-    # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
-    # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
-
-    # compressed admin_areas GeoPackage in the sources subfolder
-    path = res.files(__package__).joinpath("sources", "admin_areas.gpkg.xz")
-
-    # Decompress with lzma, then access with pyogrio.
-    # Output will be a simple DataFrame because no Geometries are read
-    with lzma.open(path, "rb") as archive:
-        regkeys = pgr.read_dataframe(
-            archive, layer="admin_areas", columns=["regkey"], read_geometry=False
-        )
-
-    # Transform the DataFrame to a list
-    regkeys = regkeys["regkey"].tolist()
-
-    return regkeys
-
-
-def get_area_names() -> pd.DataFrame:
-    """Get a DataFrame containing the names of all German administrative areas.
-
-    Data source is an aggregated list of all German administrative areas.
-    For more information, see: sources/admin_areas.
-
-    Parameters:
-        None
-
-    Returns:
-        names (pd.DataFrame): A DataFrame containing name and regkey for all areas.
-
-    Raises:
-        None
-    """
-
-    # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
-    # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
-
-    # compressed admin_areas GeoPackage in the sources subfolder
-    path = res.files(__package__).joinpath("sources", "admin_areas.gpkg.xz")
-
-    # Decompress with lzma, then access with pyogrio.
-    # Output will be a simple DataFrame because no Geometries are read
-    with lzma.open(path, "rb") as archive:
-        names = pgr.read_dataframe(
-            archive,
-            layer="admin_areas",
-            columns=["regkey", "full_name"],
-            read_geometry=False,
-        )
-
-    names = names.set_index("regkey")
-
-    return names["full_name"]
-
-
-def get_areas() -> gpd.GeoDataFrame:
-    """Get information about all German administrative areas.
-
-    Data source is an aggregated list of all German administrative areas.
-    For more information, see: sources/admin_areas.
-
-    Parameters:
-        None
-
-    Returns:
-        areas (gpd.GeoDataFrame): A GeoDataFrame containing all German administrative areas.
-
-    Raises:
-        None
-    """
-
-    # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
-    # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
-
-    # compressed admin_areas GeoPackage in the sources subfolder
-    path = res.files(__package__).joinpath("sources", "admin_areas.gpkg.xz")
-
-    # Decompress with lzma, then access with geopandas.
-    # Output is a GeoDataFrame
-    with lzma.open(path, "rb") as archive:
-        areas = gpd.read_file(archive, layer="admin_areas")
-
-    # Set index to regkey to allow for quick filtering
-    areas = areas.set_index("regkey")
-
-    return areas
-
-
-def get_area(regkey: str) -> pd.Series:
-    """Get information about a German administrative area.
-
-    Data source is an aggregated list of all German administrative areas.
-    For more information, see: sources/admin_areas.
-
-    Parameters:
-        regkey (str): The regkey of the area to be retrieved.
-
-    Returns:
-        area (pd.Series): A Series containing information about the requested area.
-
-    Raises:
-        None
-    """
-
-    # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
-    # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
-
-    # compressed admin_areas GeoPackage in the sources subfolder
-    path = res.files(__package__).joinpath("sources", "admin_areas.gpkg.xz")
-
-    # Decompress with lzma, then access with pyogrio.
-    with lzma.open(path, "rb") as archive:
-        area = gpd.read_file(archive, layer="admin_areas", where=f"regkey = '{regkey}'")
-
-    # Check if area_data is a GeoDataFrame (= multiple entries for the regkey)
-    if type(area) == gpd.GeoDataFrame:
-        # Sort entries by level value in the order of "bundesland", "kreis", "gemeinde"
-        area = area.sort_values(
-            "level", key=lambda x: x.map({"bundesland": 1, "kreis": 2, "gemeinde": 3})
-        )
-
-        # Return the entry with the highest level value as a Series
-        area = area.iloc[0]
-
-    return area
+        return bundesland
