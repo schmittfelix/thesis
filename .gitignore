@@ -1,7 +1,7 @@
 .DS_Store
 __pycache__
 .pytest_cache
-/pharmalink/code/cache
+/pharmalink/code/valhalla
 pharmalink/sources/population_grids/Zensus2022_Bevoelkerungszahl/Zensus2022_Bevoelkerungszahl_100m-Gitter.csv
 *.gpkg
 *.osm.pbf

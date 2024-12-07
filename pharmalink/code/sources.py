@@ -5,7 +5,7 @@ This module mainly exists to abstract the data source handling from the main cod
 """
 
 from __future__ import annotations
-
+from typing import List
 from dataclasses import dataclass
 import pharmalink.code.area as area
 import importlib.resources as res
@@ -14,6 +14,8 @@ import warnings
 import pyogrio as pgr
 import geopandas as gpd
 import pandas as pd
+from shapely.geometry import Point
+import json
 
 
 @dataclass
@@ -214,21 +216,7 @@ class GeometryHandler:
 
         # Handle the edge case of the whole country
         if filter_area.level == "staat":
-
-            geometries = gpd.GeoDataFrame()
-            # Iterate over all files in the sources folder
-            for file in cls.path.glob("*.gpkg.xz"):
-
-                # Decompress with lzma, then access with geopandas.
-                # Output is a GeoDataFrame
-                with lzma.open(file, "rb") as archive:
-                    found_geometries = gpd.read_file(archive)
-                    geometries = pd.concat([geometries, found_geometries])
-
-            # Reset the index to avoid duplicate indices
-            geometries = geometries.reset_index(drop=True)
-
-            return geometries
+            return cls.get_all_entries()
 
         # Get the two-letter abbreviation for the Bundesland
         two_digits = f"{filter_area.regkey[:2]}"
@@ -263,7 +251,7 @@ class GeometryHandler:
         return geometries
 
     @classmethod
-    def get_all_areas(cls) -> gpd.GeoDataFrame:
+    def get_all_entries(cls) -> gpd.GeoDataFrame:
 
         # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
         # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
@@ -303,8 +291,48 @@ class Pharmacies:
     path = res.files(__package__).joinpath("sources", "pharmacies.gpkg.xz")
 
     @classmethod
-    def get_closest_pharmacies(cls, location):
-        pass
+    def get_closest_pharmacies(
+        cls, location: Point, num_pharmacies: int
+    ) -> gpd.GeoDataFrame:
+        """Get the closest pharmacies to a given location."""
+
+        # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
+        # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
+        warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
+
+        # Decompress with lzma, then access with geopandas.
+        # Output is a GeoDataFrame
+        with lzma.open(cls.path, "rb") as archive:
+            pharmacies = gpd.read_file(archive)
+
+        # Calculate the distance to each pharmacy
+        pharmacies["distance"] = pharmacies.distance(location)
+
+        # Sort the pharmacies by distance and return the closest ones
+        pharmacies = pharmacies.sort_values("distance").head(num_pharmacies)
+
+        return pharmacies
+
+    @classmethod
+    def get_within_area(cls, filter_area: area.Area) -> gpd.GeoDataFrame:
+        """Get all pharmacies within the given bounds."""
+
+        # Check if area is valid
+        if not isinstance(filter_area, area.Area):
+            raise TypeError("filter_area must be an instance of area.Area")
+
+        # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
+        # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
+        warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
+
+        mask = filter_area.geometry.geometry[0]
+
+        # Decompress with lzma, then access with geopandas.
+        # Output is a GeoDataFrame
+        with lzma.open(cls.path, "rb") as archive:
+            pharmacies = gpd.read_file(archive, mask=mask)
+
+        return pharmacies
 
     @classmethod
     def get_all_pharmacies(cls) -> gpd.GeoDataFrame:
@@ -342,3 +370,42 @@ class DistributionCenters:
             distribution_centers = gpd.read_file(archive)
 
         return distribution_centers
+
+
+def evaluate_mode_of_transport(distance: int, choices: List[str]) -> str:
+    """Return a suitable mode of transportation for a given distance.
+
+    Returns either "auto", "bicycle" or "pedestrian" with probabilities
+    based on the given distance.
+
+    Args:
+        distance (float): The distance.
+        choices (List[str]): The modes of transportation to choose from.
+
+    Returns:
+        str: The mode of transportation.
+    """
+
+    # Source is a json file with interval breaks and cell values describing
+    # usage probabilities for different modes of transportation based on trip length
+    path = res.files(__package__).joinpath("sources", "transport_modes.json")
+
+    with open(path, "r") as path:
+        json_table = json.load(path)
+
+    index = pd.IntervalIndex.from_breaks(
+        json_table["breaks"], closed="left", name="distance"
+    )
+
+    mot_table = pd.DataFrame(json_table["data"], index=index)
+
+    # Find the row with the interval that contains the given distance
+    row = mot_table.loc[distance]
+
+    # Filter the row to only include the given choices if not all routes could be computed
+    row = row[choices]
+
+    # Draw a mode of transportation with the probabilities from the row
+    draw = row.sample(1, weights=row.values).index[0]
+
+    return draw
