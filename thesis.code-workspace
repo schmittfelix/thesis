@@ -17,6 +17,9 @@
 		"editor.rulers": [
 			80,
 			120
+		],
+		"python.analysis.exclude": [
+			"pharmalink/code/valhalla/lib/src/bindings/python/valhalla"
 		]
 	},
 	"launch": {
