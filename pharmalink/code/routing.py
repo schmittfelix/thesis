@@ -14,7 +14,6 @@ import pathlib as path
 import json
 import os
 import requests as req
-import zipfile
 import sys
 
 
@@ -25,8 +24,10 @@ data_dir = res.files(__package__).joinpath("valhalla", "data")
 def create_routing_actor(forced: bool = False) -> valhalla.Actor:
     """Create a new Valhalla routing actor.
 
+    WARNING: Running this for the first time will trigger multiple lengthy build processes to bootstrap everything.
+
     Args:
-        forced: Whether to build anew or lazy-load existing parts from the cache.
+        forced: Whether to build anew or lazy-load existing parts from cache.
 
     Returns:
         A valhalla.Actor instance.
@@ -53,6 +54,12 @@ def create_routing_actor(forced: bool = False) -> valhalla.Actor:
 
 
 def build_valhalla(forced: bool = False) -> None:
+    """Build the Valhalla routing engine.
+
+    Please note that this will only work on macos in its current state.
+    If needed, the build process should work on most Linux distributions by adjusting the package manager commands.
+    The build process is loosely based on the official Valhalla documentation, but I had to adjust some of the steps, YMMV.
+    """
 
     # Ensure the build subdirectory exists and is empty
     build_dir = res.files(__package__).joinpath("valhalla", "build")
@@ -145,7 +152,7 @@ def build_valhalla(forced: bool = False) -> None:
     # Build Valhalla using all available CPU cores
     subprocess_run(["cmake", "--build", "build", "--", "-j", f"{os.cpu_count()}"])
 
-    # Copy the built Valhalla libraries to the cache directory
+    # Copy the built Valhalla libraries to the lib directory
     shutil.copytree(build_dir.joinpath("build"), lib_dir)
 
     # Remove the build directory
@@ -153,6 +160,14 @@ def build_valhalla(forced: bool = False) -> None:
 
 
 def build_graph(forced: bool = False) -> None:
+    """Build the Valhalla routing graph for a given OSM input file.
+
+    WARNING: This process is quite resource-intensive and can take a long time to complete.
+    Unlike the library build, this should work on all systems out of the box.
+    It is again loosely based on the official Valhalla documentation, but I had to hand-stitch the components together.
+    """
+
+    # TODO: Simplify the cache/data structure (optimally alike the OSM input file), it's a bit convoluted right now and duplicate copies should be unnecessary
 
     cache_dir = res.files(__package__).joinpath("valhalla", "cache")
 
@@ -163,7 +178,7 @@ def build_graph(forced: bool = False) -> None:
     # Continue with build if the Valhalla graph is missing or forced
     print("Valhalla graph not found. Building now...")
 
-    # Remove existing Valhalla libraries and build directories
+    # Cleanup existing Valhalla data directory
     if data_dir.exists():
         shutil.rmtree(data_dir)
 
@@ -216,6 +231,22 @@ def build_graph(forced: bool = False) -> None:
 
     # ENSURE NECESSARY FILES EXIST
 
+    # OSM INPUT FILE
+    input_file = cache_dir.joinpath("germany.osm.pbf")
+
+    if not input_file.exists() or forced:
+        print("Downloading OSM input file...")
+        input_url = "https://download.geofabrik.de/europe/germany-latest.osm.pbf"
+
+        # This file is around 4 GB in size, so we stream it to disk
+        with req.get(input_url, stream=True) as request:
+            request.raise_for_status()
+            with open(input_file, "wb") as file:
+                for chunk in request.iter_content(chunk_size=8192):
+                    file.write(chunk)
+
+        print("OSM input file downloaded.")
+
     # Default speeds file to enhance graph
     default_speeds_source = cache_dir.joinpath("default_speeds.json")
     default_speeds_target = path.Path(config["mjolnir"]["default_speeds_config"])
@@ -232,39 +263,35 @@ def build_graph(forced: bool = False) -> None:
     print("Default speeds file copied.")
 
     # Download transit data for Germany
-    transit_feeds_source = cache_dir.joinpath("transit_feeds")
-    transit_feeds_target = path.Path(config["mjolnir"]["transit_feeds_dir"])
+    # transit_feeds_source = cache_dir.joinpath("transit_feeds")
+    # transit_feeds_target = path.Path(config["mjolnir"]["transit_feeds_dir"])
 
-    if not transit_feeds_source.exists() or forced:
-        # Create transit feeds directory and a subdirectory for Germany
-        transit_feeds_source.mkdir(parents=True, exist_ok=True)
+    # if not transit_feeds_source.exists() or forced:
+    #     # Create transit feeds directory and a subdirectory for Germany
+    #     transit_feeds_source.mkdir(parents=True, exist_ok=True)
 
-        # Download feed for Germany
-        germany_dir = transit_feeds_source.joinpath("germany")
-        germany_dir.mkdir(parents=True, exist_ok=True)
+    #     # Download feed for Germany
+    #     germany_dir = transit_feeds_source.joinpath("germany")
+    #     germany_dir.mkdir(parents=True, exist_ok=True)
 
-        # Download GTFS data for Germany
-        gtfs_url = "https://download.gtfs.de/germany/free/latest.zip"
-        # gtfs_url = ""
+    #     # Download GTFS data for Germany
+    #     gtfs_url = "https://download.gtfs.de/germany/free/latest.zip"
+    #     # gtfs_url = ""
 
-        print("Downloading GTFS data for Germany...")
-        gtfs_file = germany_dir.joinpath("gtfs.zip")
-        with open(gtfs_file, "wb") as f:
-            f.write(req.get(gtfs_url).content)
+    #     print("Downloading GTFS data for Germany...")
+    #     gtfs_file = germany_dir.joinpath("gtfs.zip")
+    #     with open(gtfs_file, "wb") as f:
+    #         f.write(req.get(gtfs_url).content)
 
-        # Unzip the GTFS data
-        with zipfile.ZipFile(gtfs_file, "r") as zip_ref:
-            zip_ref.extractall(germany_dir)
-        gtfs_file.unlink()
+    #     # Unzip the GTFS data
+    #     with zipfile.ZipFile(gtfs_file, "r") as zip_ref:
+    #         zip_ref.extractall(germany_dir)
+    #     gtfs_file.unlink()
 
-        print("GTFS data for Germany downloaded.")
+    #     print("GTFS data for Germany downloaded.")
 
-    shutil.copytree(transit_feeds_source, transit_feeds_target)
-    print("Transit data copied.")
-
-    # OSM INPUT FILES
-    input_file = cache_dir.joinpath("germany.osm.pbf")
-    # input_file = cache_dir.joinpath("andorra-latest.osm.pbf")
+    # shutil.copytree(transit_feeds_source, transit_feeds_target)
+    # print("Transit data copied.")
 
     # BUILD ADMINS
     admins_source = cache_dir.joinpath("admin.sqlite")
@@ -337,7 +364,8 @@ def build_graph(forced: bool = False) -> None:
     # shutil.copytree(transit_dir_source, transit_dir_target)
     # print("Transit data copied.")
 
-    # TODO: Convert Transit after ingest
+    # TODO: Give this another go if possible. Parsing the transit data took over 10 days on a M1 Pro during a trial run (before failing due to a mistake on my part).
+    # However, while transit is relevant for accurately representing used modes of transport, valhalla matrices can only be calculated for auto, pedestrian, and bicycle modes, anyways.
 
     # FIRST TILE BUILD
     tiles_source = cache_dir.joinpath("tiles")

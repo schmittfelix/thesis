@@ -5,12 +5,6 @@ While its usual form is a 12-digit key capable of identifying all administrative
 a 5-digit key is often used to identify counties and county-level cities (Kreise and kreisfreie Städte) and
 a 2-digit key to identify the Bundesländer (states).
 More information: https://de.wikipedia.org/wiki/Regionalschl%C3%BCssel
-
-Classes:
-    
-
-Functions:
-    
 """
 
 from pharmalink.code.sources import AdminAreas
@@ -63,7 +57,6 @@ class Area:
         # get the data for the specified area
         area = AdminAreas.get_area(regkey)
 
-        # set the regkey, name, population and level attributes
         self.regkey = regkey
         self.level = area["level"].values[0]
         self.bundesland = self._regkey_to_bundesland()
@@ -111,12 +104,15 @@ class Area:
             "max_zoom": 18,
             "control_scale": False,
             "zoom_control": False,
+            "prefer_canvas": True,
         }
 
         map = fl.Map(**map_args)
 
         # fit map to bounds for nice display
-        map.fit_bounds([[bounds[1], bounds[0]], [bounds[3], bounds[2]]])
+        map.fit_bounds(
+            [[bounds[1], bounds[0]], [bounds[3], bounds[2]]], padding=(10, 10)
+        )
 
         style_args = {}
 

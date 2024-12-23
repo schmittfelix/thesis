@@ -108,6 +108,7 @@ class Customers:
             "max_zoom": 18,
             "control_scale": False,
             "zoom_control": False,
+            "prefer_canvas": True,
         }
 
         map = fl.Map(**map_args)
@@ -240,6 +241,10 @@ class Customers:
         # convert the customers to a GeoDataFrame
         customers = gpd.GeoDataFrame(geometry=customers)
         customers.rename_geometry("location", inplace=True)
+
+        customers = customers.to_crs(epsg=4326)
+
+        customers = customers.reset_index(drop=True)
 
         return customers
 

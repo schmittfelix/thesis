@@ -1,6 +1,6 @@
-"""Module for dealing with the various sources of data used in the model.
+"""Module for dealing with the various sources of data used in the pharmalink model.
 
-This module mainly exists to abstract the data source handling from the main codebase.
+This module exists to abstract the data source handling from the main codebase.
 
 """
 
@@ -30,6 +30,11 @@ class Constants:
     # Source: "ABDA: Die Apotheke (2024)"
     total_medicine_units: int = (
         1.388e9  # total yearly pharmaceutical volume in Germany in 2023 in single units (blister, bottle, etc.)
+    )
+
+    # Source: "PHAGRO: Pharmazeutischer Großhandel in Zahlen (www.phagro.de)"
+    average_daily_deliveries_to_pharmacy: int = (
+        3  # average daily deliveries to pharmacies in Germany
     )
 
 
@@ -325,7 +330,7 @@ class Pharmacies:
         # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
 
-        mask = filter_area.geometry.geometry[0]
+        mask = filter_area.geometry
 
         # Decompress with lzma, then access with geopandas.
         # Output is a GeoDataFrame
@@ -354,8 +359,53 @@ class DistributionCenters:
     path = res.files(__package__).joinpath("sources", "distribution_centers.gpkg.xz")
 
     @classmethod
-    def get_closest_dist_centers():
-        pass
+    def get_closest_dist_centers(
+        cls, area: area.Area, num_centers: int = 3
+    ) -> gpd.GeoDataFrame:
+        """Get the closest distribution centers within and/or around a given area."""
+
+        # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
+        # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
+        warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
+
+        # Decompress with lzma, then access with geopandas.
+        # Output is a GeoDataFrame
+        with lzma.open(cls.path, "rb") as archive:
+            distribution_centers = gpd.read_file(archive)
+
+        # Convert both geometries to a projected CRS to calculate distances
+        area_geometry = area.geometry.to_crs(epsg=25832)
+        distribution_centers = distribution_centers.to_crs(epsg=25832)
+
+        area_geometry = area_geometry.geometry[0]  # extract the shapely geometry
+
+        within_area = distribution_centers[distribution_centers.within(area_geometry)]
+
+        # If there are not enough centers within the area, add the closest ones outside the area
+        if len(within_area) < num_centers:
+            outside_area = distribution_centers[
+                ~distribution_centers.within(area_geometry)
+            ].copy()
+
+            # Calculate the distance to the area for each center outside the area
+            outside_area.loc[:, "distance"] = outside_area.distance(area_geometry)
+
+            closest_outside = outside_area.nsmallest(
+                num_centers - len(within_area), "distance"
+            )
+
+            closest_outside = closest_outside.drop(columns="distance")
+
+            distribution_centers = pd.concat([within_area, closest_outside])
+            distribution_centers.reset_index(drop=True, inplace=True)
+
+        else:
+            distribution_centers = within_area
+
+        # Convert the geometries back to a geographic CRS
+        distribution_centers = distribution_centers.to_crs(epsg=4326)
+
+        return distribution_centers
 
     @classmethod
     def get_all_dist_centers(cls) -> gpd.GeoDataFrame:
