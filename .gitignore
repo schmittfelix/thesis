@@ -1,7 +1,22 @@
+# CACHE
 .DS_Store
 __pycache__
 .pytest_cache
+
+# LOCAL BUILD (LARGE)
 /pharmalink/code/valhalla
+
+# LARGE FILES
 pharmalink/sources/population_grids/Zensus2022_Bevoelkerungszahl/Zensus2022_Bevoelkerungszahl_100m-Gitter.csv
 *.gpkg
 *.osm.pbf
+
+# LICENCE
+gurobi.lic
+
+# IDE
+*.code-workspace
+*.vscode
+
+# VENV
+/venv/

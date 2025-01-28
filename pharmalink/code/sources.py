@@ -27,10 +27,22 @@ class Constants:
         82711282  # total population of Germany at Zensus2022 cut-off date
     )
 
-    # Source: "ABDA: Die Apotheke (2024)"
-    total_medicine_units: int = (
+    # Source: "ABDA: GERMAN PHARMACIES – FIGURES, DATA, FACTS 2024, p. 31"
+    yearly_pharmaceutical_units: int = (
         1.388e9  # total yearly pharmaceutical volume in Germany in 2023 in single units (blister, bottle, etc.)
     )
+
+    # Source: "ABDA: GERMAN PHARMACIES – FIGURES, DATA, FACTS 2024, p. 31"
+    daily_pharmaceutical_units: int = int(
+        yearly_pharmaceutical_units
+        / 365
+        # total daily pharmaceutical volume in Germany in 2023 in single units
+    )
+
+    # Source: "ABDA: GERMAN PHARMACIES – FIGURES, DATA, FACTS 2024, p. 31, 64"
+    fraction_of_pharmaceuticals_delivered_by_courier: float = round(
+        300000 / daily_pharmaceutical_units, 4
+    )  # average percentage of daily pharmaceuticals delivered by courier
 
     # Source: "PHAGRO: Pharmazeutischer Großhandel in Zahlen (www.phagro.de)"
     average_daily_deliveries_to_pharmacy: int = (
@@ -296,29 +308,6 @@ class Pharmacies:
     path = res.files(__package__).joinpath("sources", "pharmacies.gpkg.xz")
 
     @classmethod
-    def get_closest_pharmacies(
-        cls, location: Point, num_pharmacies: int
-    ) -> gpd.GeoDataFrame:
-        """Get the closest pharmacies to a given location."""
-
-        # Filter RuntimeWarnings from pyogrio. The GDAL driver for GeoPackage expects a .gpkg filename,
-        # but the virtual file it receives from lzma cannot comply with the file standard in this regard.
-        warnings.filterwarnings("ignore", category=RuntimeWarning, module="pyogrio")
-
-        # Decompress with lzma, then access with geopandas.
-        # Output is a GeoDataFrame
-        with lzma.open(cls.path, "rb") as archive:
-            pharmacies = gpd.read_file(archive)
-
-        # Calculate the distance to each pharmacy
-        pharmacies["distance"] = pharmacies.distance(location)
-
-        # Sort the pharmacies by distance and return the closest ones
-        pharmacies = pharmacies.sort_values("distance").head(num_pharmacies)
-
-        return pharmacies
-
-    @classmethod
     def get_within_area(cls, filter_area: area.Area) -> gpd.GeoDataFrame:
         """Get all pharmacies within the given bounds."""
 
@@ -337,6 +326,9 @@ class Pharmacies:
         with lzma.open(cls.path, "rb") as archive:
             pharmacies = gpd.read_file(archive, mask=mask)
 
+        pharmacies.rename(columns={"geometry": "location"}, inplace=True)
+        pharmacies.set_geometry("location", inplace=True)
+
         return pharmacies
 
     @classmethod
@@ -350,6 +342,9 @@ class Pharmacies:
         # Output is a GeoDataFrame
         with lzma.open(cls.path, "rb") as archive:
             pharmacies = gpd.read_file(archive)
+
+        pharmacies.rename(columns={"geometry": "location"}, inplace=True)
+        pharmacies.set_geometry("location", inplace=True)
 
         return pharmacies
 
@@ -405,6 +400,9 @@ class DistributionCenters:
         # Convert the geometries back to a geographic CRS
         distribution_centers = distribution_centers.to_crs(epsg=4326)
 
+        distribution_centers.rename(columns={"geometry": "location"}, inplace=True)
+        distribution_centers.set_geometry("location", inplace=True)
+
         return distribution_centers
 
     @classmethod
@@ -418,6 +416,9 @@ class DistributionCenters:
         # Output is a GeoDataFrame
         with lzma.open(cls.path, "rb") as archive:
             distribution_centers = gpd.read_file(archive)
+
+        distribution_centers.rename(columns={"geometry": "location"}, inplace=True)
+        distribution_centers.set_geometry("location", inplace=True)
 
         return distribution_centers
 

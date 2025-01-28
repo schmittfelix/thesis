@@ -9,6 +9,7 @@
 		"python.analysis.autoSearchPaths": true,
 		"python.analysis.indexing": true,
 		"python.analysis.autoImportCompletions": true,
+		"python.analysis.typeCheckingMode": "off",
 		"notebook.displayOrder": [
 			"application/json",
 			"text/x-json",
@@ -19,8 +20,20 @@
 			120
 		],
 		"python.analysis.exclude": [
-			"pharmalink/code/valhalla/lib/src/bindings/python/valhalla"
-		]
+			"pharmalink/code/valhalla"
+		],
+		"python.analysis.inlayHints.functionReturnTypes": true,
+		"python.analysis.inlayHints.pytestParameters": true,
+		"python.analysis.inlayHints.variableTypes": true,
+		"python.analysis.typeEvaluation.deprecateTypingAliases": true,
+		"python.terminal.shellIntegration.enabled": true,
+		"python.analysis.autoFormatStrings": true,
+		"python.analysis.completeFunctionParens": true,
+		"python.analysis.generateWithTypeAnnotation": true,
+		"python.analysis.typeEvaluation.enableReachabilityAnalysis": true,
+		"python.analysis.include": [
+			"pharmalink"
+		],
 	},
 	"launch": {
 		"version": "0.2.0",

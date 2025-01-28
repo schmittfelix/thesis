@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import venv
 
 if TYPE_CHECKING:
     import pharmalink.code.valhalla.lib.src.bindings.python.valhalla as valhalla
@@ -21,7 +22,9 @@ lib_dir = res.files(__package__).joinpath("valhalla", "lib")
 data_dir = res.files(__package__).joinpath("valhalla", "data")
 
 
-def create_routing_actor(forced: bool = False) -> valhalla.Actor:
+def create_routing_actor(
+    force_valhalla_build: bool = False, force_graph_build: bool = False
+) -> valhalla.Actor:
     """Create a new Valhalla routing actor.
 
     WARNING: Running this for the first time will trigger multiple lengthy build processes to bootstrap everything.
@@ -33,11 +36,11 @@ def create_routing_actor(forced: bool = False) -> valhalla.Actor:
         A valhalla.Actor instance.
     """
 
-    if not lib_dir.exists() or forced:
-        build_valhalla(forced=forced)
+    if not lib_dir.exists() or force_valhalla_build:
+        build_valhalla(forced=force_valhalla_build)
 
-    if not data_dir.exists() or forced:
-        build_graph(forced=forced)
+    if not data_dir.exists() or force_graph_build:
+        build_graph(forced=force_graph_build)
 
     # Load the Valhalla library
     bindings_path = res.files(__package__).joinpath(
@@ -50,7 +53,14 @@ def create_routing_actor(forced: bool = False) -> valhalla.Actor:
     config_file = data_dir.joinpath("valhalla.json")
 
     # Create a new Valhalla actor
-    return valhalla.Actor(str(config_file))
+
+    try:
+        return valhalla.Actor(str(config_file))
+
+    except Exception as e:
+        print(e)
+        print("Valhalla actor creation failed. Trying again with forced lib rebuild...")
+        return create_routing_actor(force_valhalla_build=True)  # force lib rebuild
 
 
 def build_valhalla(forced: bool = False) -> None:
@@ -92,10 +102,12 @@ def build_valhalla(forced: bool = False) -> None:
         )
 
     # Update PATH to include required binary locations
-    os.environ["PATH"] = (
-        "/usr/local/opt/binutils/bin:/usr/local/opt/coreutils/libexec/gnubin:"
-        + os.environ["PATH"]
-    )
+    # os.environ["PATH"] = (
+    #     "/usr/local/opt/binutils/bin:/usr/local/opt/coreutils/libexec/gnubin:"
+    #     + os.environ["PATH"]
+    # )
+
+    print(os.environ["PATH"])
 
     # These are the system dependencies required to build Valhalla
     # The very popular `Homebrew` package manager is used to install these dependencies
@@ -137,6 +149,23 @@ def build_valhalla(forced: bool = False) -> None:
         ]
     )
 
+    # Edit the CMakeLists.txt file to force cmake to use the correct python version
+    # This is necessary because the default behaviour is to use homebrew's python instead of the venv setup for the project
+    cmake_lists = build_dir.joinpath("CMakeLists.txt")
+
+    with open(cmake_lists, "r") as file:
+        lines = file.readlines()
+
+    with open(cmake_lists, "w") as file:
+        for line in lines:
+            if "  find_package(Python COMPONENTS Development Interpreter)" in line:
+                file.write('  set(Python_FIND_VIRTUALENV "ONLY")\n')
+                file.write(
+                    "  find_package(Python COMPONENTS Development Interpreter)\n"
+                )
+            else:
+                file.write(line)
+
     # Configure cmake build
     subprocess_run(
         [
@@ -146,7 +175,7 @@ def build_valhalla(forced: bool = False) -> None:
             "-DCMAKE_BUILD_TYPE=Release",
             "-DENABLE_SERVICES=OFF",
             "-DENABLE_GDAL=OFF",
-        ]
+        ],
     )
 
     # Build Valhalla using all available CPU cores

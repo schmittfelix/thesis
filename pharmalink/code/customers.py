@@ -265,10 +265,10 @@ def get_daily_demand(area: area.Area) -> int:
     # Constants
     const = src.Constants()
     total_population = const.total_population
-    total_medicine_units = const.total_medicine_units
+    yearly_pharmaceutical_units = const.yearly_pharmaceutical_units
 
     # Yearly demand: Population in area * (overall yearly volume / total population)
-    yearly_demand = area.population * (total_medicine_units / total_population)
+    yearly_demand = area.population * (yearly_pharmaceutical_units / total_population)
 
     # Return daily demand rounded to the nearest integer
     daily_demand = round(yearly_demand / 365, 0).astype(int)
